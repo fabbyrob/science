@@ -1,0 +1,22 @@
+CREATE TABLE genes(gene_id integer primary key, name string, scaffold string, direction string, start integer, stop integer, expression real);
+CREATE TABLE exons(exon_id integer primary key, snps integer, ffold_snps integer, zfold_snps integer, gc integer, afs string);
+CREATE TABLE gene_exons(exon_id integer, gene_id integer, FOREIGN KEY (exon_id) REFERENCES exons(exon_id), FOREIGN KEY (gene_id) REFERENCES genes(gene_id));
+CREATE TABLE introns(intron_id integer primary key, len integer, start integer, stop integer);
+CREATE TABLE gene_introns(intron_id integer, gene_id integer, ord integer, FOREIGN KEY (intron_id) REFERENCES introns(intron_id), FOREIGN KEY (gene_id) REFERENCES genes(gene_id));
+CREATE TABLE neighbors(intron_id integer, exon_id integer, FOREIGN KEY (exon_id) REFERENCES exons(exon_id), FOREIGN KEY (intron_id) REFERENCES introns(intron_id));
+CREATE TABLE intron_bins(intron_id integer, bin integer, gc integer, snps integer, cncs integer, afs string, FOREIGN KEY (intron_id) REFERENCES intron(intron_id));
+
+
+INSERT INTO genes(name, direction, start, stop, expression) VALUES ('g1', '+', 100, 800, 1);
+INSERT INTO genes(name, direction, start, stop, expression) VALUES ('g2', '+', 2000, 2800, 1);
+INSERT INTO genes(name, direction, start, stop, expression) VALUES ('g3', '+', 3000, 3800, 1);
+
+INSERT INTO introns(len, start, stop) VALUES (100, 150, 250);
+INSERT INTO introns(len, start, stop) VALUES (300, 350, 250);
+INSERT INTO introns(len, start, stop) VALUES (700, 850, 250);
+INSERT INTO introns(len, start, stop) VALUES (1900, 2150, 250);
+INSERT INTO introns(len, start, stop) VALUES (2200, 2350, 250);
+INSERT INTO introns(len, start, stop) VALUES (4100, 4150, 250);
+INSERT INTO introns(len, start, stop) VALUES (4400, 4550, 250);
+
+SELECT intron_id FROM introns WHERE (start >= gene.start AND stop <= gene.stop);

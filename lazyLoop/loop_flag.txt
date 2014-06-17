@@ -1,0 +1,9 @@
+program /opt/python27/bin/python27 ~/bin/TEsim.py #program to run
+output /data/robert.williamson/temp/loopTest/ #output folder
+processes 2#maximum number of processes
+replicate 2#number of replicates
+? -J#a flag that takes no option, will be inserted into every instance
+-T 2 5#list of parameters followed by all options
+-N 10 100
+-G 5 10
+> OUTPUT .txt#if the argument is OUTPUT it will make an output filename by concatenating all the options for this run together, it will give the file ending given after OUTPUT

@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/repos/!svn/ver/1423/robert.williamson/trunk/introns
+END
+getIntronData.py
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/repos/!svn/ver/1394/robert.williamson/trunk/introns/getIntronData.py
+END
+buildDatabase.txt
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/repos/!svn/ver/1342/robert.williamson/trunk/introns/buildDatabase.txt
+END
+buildIntronDatabase.py
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/repos/!svn/ver/1342/robert.williamson/trunk/introns/buildIntronDatabase.py
+END
+data.txt
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/repos/!svn/ver/1341/robert.williamson/trunk/introns/data.txt
+END
+getIntronWindows.py
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/repos/!svn/ver/1423/robert.williamson/trunk/introns/getIntronWindows.py
+END

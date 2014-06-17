@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/repos/!svn/ver/1181/robert.williamson/trunk/pyVCF
+END
+HISTORY.md
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/repos/!svn/ver/983/robert.williamson/trunk/pyVCF/HISTORY.md
+END
+LICENSE
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/repos/!svn/ver/983/robert.williamson/trunk/pyVCF/LICENSE
+END
+README.rst
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/repos/!svn/ver/983/robert.williamson/trunk/pyVCF/README.rst
+END
+vcf_melt
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/repos/!svn/ver/983/robert.williamson/trunk/pyVCF/vcf_melt
+END
+setup.py
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/repos/!svn/ver/983/robert.williamson/trunk/pyVCF/setup.py
+END
+vcf.py
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/repos/!svn/ver/983/robert.williamson/trunk/pyVCF/vcf.py
+END

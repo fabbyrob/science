@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/repos/!svn/ver/1353/robert.williamson/trunk/mapping_simulation
+END
+msexample2.txt
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/repos/!svn/ver/1018/robert.williamson/trunk/mapping_simulation/msexample2.txt
+END
+msexample3.txt
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/repos/!svn/ver/1018/robert.williamson/trunk/mapping_simulation/msexample3.txt
+END
+qualDist.py
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/repos/!svn/ver/983/robert.williamson/trunk/mapping_simulation/qualDist.py
+END
+simulateSequencing.py
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/repos/!svn/ver/1353/robert.williamson/trunk/mapping_simulation/simulateSequencing.py
+END
+msexample.txt
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/repos/!svn/ver/1018/robert.williamson/trunk/mapping_simulation/msexample.txt
+END
+coalescentToFasta.py
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/repos/!svn/ver/1025/robert.williamson/trunk/mapping_simulation/coalescentToFasta.py
+END
+ref.fasta
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/repos/!svn/ver/983/robert.williamson/trunk/mapping_simulation/ref.fasta
+END
+fake.fasta
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/repos/!svn/ver/1018/robert.williamson/trunk/mapping_simulation/fake.fasta
+END
