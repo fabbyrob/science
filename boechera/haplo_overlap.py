@@ -48,7 +48,7 @@ def __main__():
         if file1Blocks[currChrom][currf1].end < site.POS:
             currf1 = min(currf1+1, len(currf1)-1)
             
-        if file1Blocks[currChrom][currf2].end < sitePOS:
+        if file1Blocks[currChrom][currf2].end < site.POS:
             currf2 = min(currf2+1, len(currf2)-1)
             
         insertSite(site, file1Blocks[currChrom][currf1], f1Samp)
