@@ -14,9 +14,6 @@ def __main__():
     hap1 = Reader(open(sys.argv[1]))
     hap2 = Reader(open(sys.argv[2]))
     
-    f1Samp = sys.argv[4]
-    f2Samp = sys.argv[5]
-    
     file1Blocks = defaultdict(list)
     file2Blocks = defaultdict(list)
     
@@ -36,7 +33,12 @@ def __main__():
     currf1 = 0
     currf2 = 0
     currChrom = ""
-    for site in vcf.Reader(open(sys.argv[3])):
+    vReader = vcf.Reader(open(sys.argv[3]))
+    
+    f1Samp = vReader.sampled.index(sys.argv[4])
+    f2Samp = vReader.sampled.index(sys.argv[5])
+    
+    for site in vReader:
         if not currChrom:
             currChrom = site.CHROM
             
