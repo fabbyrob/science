@@ -36,7 +36,7 @@ Block:
     
     Block.difference(hap1, hap2) - this function counts and returns the number of differences between two haplotypes. By default it returns the differences of
         the two haplotypes of self
-    
+    Block.getOverlap(start, end) - returns 2 lists of the haplotype nucleotides that fall within start and stop
 '''
 
 from collections import namedtuple
@@ -113,16 +113,34 @@ class Block:
         
         if hap1 == 1:
             self.haplotype1.insert(i, ALT)
+        elif hap1 == 0:
+            self.haplotype1.insert(i, REF)
+        else:
+            self.haplotype1.insert(i, "N")
+            
+        if hap2 == 1:
+            self.haplotype2.insert(i, ALT)
+        elif hap2 == 0:
             self.haplotype2.insert(i, REF)
         else:
-            self.haplotype1.insert(i, REF)
-            self.haplotype2.insert(i, ALT)
+            self.haplotype2.insert(i, "N")
+    
+    def getOverlap(self, oStart, oEnd):
+        overlap1 = []
+        overlap2 = []
+        for s in sels.SNPs:
+            if s > oEnd:#we've reached the end
+                break
+            
+            if s >= oStart:
+                overlap1.append(self.haplotype1[s])
+                overlap2.append(self.haplotype2[s])
         
     def difference(self, hap1, hap2):
         diffs = 0.0
         
         for h1, h2 in zip(hap1, hap2):
-            if h1 != h2:
+            if h1 != h2 and "N" not in [h1, h2]:
                 diffs += 1
         
         return diffs
@@ -130,6 +148,12 @@ class Block:
     def __str__(self):
         mystr = "BLOCK: chrom: %s offset %s len: %s SPAN: %s" % (self.chrom, self.offset, self.length, self.SPAN)
         return mystr
+    
+    def __lt__(self, other):
+        return self.start < self.other
+    
+    def __gt__(self, other):
+        return self.start > other.start
     
 ####Some custom exceptions
 class ChromosomeMissmatch(Exception):

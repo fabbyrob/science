@@ -4,6 +4,8 @@ ONly calculates differences between the 1st haplotype in file 1 and the haplotyp
 '''
 
 import sys
+sys.path.append("/data/robert.williamson/bin")
+
 import vcf
 from hapcut_parser import Reader, Block
 
