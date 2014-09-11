@@ -96,7 +96,7 @@ def insertSite(site, block, samp):
             return
         geno = site.samples[samp]
         
-        if "GT" in geno.keys():
+        if "GT" in geno.keys() and "." not in geno["GT"]:
             g1, g2 = map(int, geno["GT"].split("/"))
             if g1 == g2:#dont add heterozygotes... dont know the haplotype
                 block.addSNP(site.CHROM, site.POS, site.REF, site.ALT, g1, g2, "")
