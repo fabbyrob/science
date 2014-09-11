@@ -150,7 +150,7 @@ class Block:
         return mystr
     
     def __lt__(self, other):
-        return self.start < self.other
+        return self.start < other.start
     
     def __gt__(self, other):
         return self.start > other.start
