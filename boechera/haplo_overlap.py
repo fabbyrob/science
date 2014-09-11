@@ -8,6 +8,7 @@ sys.path.append("/data/robert.williamson/bin")
 
 import vcf
 from hapcut_parser import Reader, Block
+from collections import defaultdict
 
 def __main__():
     hap1 = Reader(open(sys.argv[1]))
