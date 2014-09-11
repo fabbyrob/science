@@ -35,8 +35,8 @@ def __main__():
     currChrom = ""
     vReader = vcf.Reader(open(sys.argv[3]))
     
-    f1Samp = vReader.sampled.index(sys.argv[4])
-    f2Samp = vReader.sampled.index(sys.argv[5])
+    f1Samp = vReader.samples.index(sys.argv[4])
+    f2Samp = vReader.samples.index(sys.argv[5])
     
     for site in vReader:
         if not currChrom:
