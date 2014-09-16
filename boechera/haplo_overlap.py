@@ -48,7 +48,7 @@ def __main__():
     for site in vReader:
         ctr += 1
         if ctr % 5000 == 0:
-            sys.stderr.write("\tProcessed %s VCF lines (Run time: %.2f)...\n" % ((time.time()-start_time)/60))
+            sys.stderr.write("\tProcessed %s VCF lines (Run time: %.2f)...\n" % (ctr, (time.time()-start_time)/60))
         if not currChrom:
             currChrom = site.CHROM
             
