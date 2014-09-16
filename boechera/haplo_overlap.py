@@ -7,10 +7,12 @@ import sys
 sys.path.append("/data/robert.williamson/bin")
 
 import vcf
+import time
 from hapcut_parser import Reader, Block
 from collections import defaultdict
 
 def __main__():
+    start_time = time.time()
     hap1 = Reader(open(sys.argv[1]))
     hap2 = Reader(open(sys.argv[2]))
     
@@ -18,17 +20,21 @@ def __main__():
     file2Blocks = defaultdict(list)
     
     #read in the blocks
+    sys.stderr.write("Reading in haplotypes...\n")
     for block in hap1:
         file1Blocks[block.chrom].append(block)
     for block in hap2:
         file2Blocks[block.chrom].append(block) 
         
+    sys.stderr.write("Sorting haplotypes 1 (Run time: %.2f)...\n" % ((time.time()-start_time)/60))
     #make sure they are sorted
     for k in file1Blocks.keys():
         file1Blocks[k].sort()
+    sys.stderr.write("Sorting haplotypes 2 (Run time: %.2f)...\n" % ((time.time()-start_time)/60)) 
     for k in file2Blocks.keys():
         file2Blocks[k].sort()
-        
+       
+    sys.stderr.write("Processing VCFs (Run time: %.2f)...\n" % ((time.time()-start_time)/60)) 
     #add in all the homozygous data
     currf1 = 0
     currf2 = 0
@@ -51,12 +57,13 @@ def __main__():
             currf1 = min(currf1+1, len(file1Blocks[currChrom])-1)
             
         if file1Blocks[currChrom][currf2].end < site.POS:
-            currf2 = min(currf2+1, len(file1Blocks[currChrom])-1)
+            currf2 = min(currf2+1, len(file2Blocks[currChrom])-1)
             
         insertSite(site, file1Blocks[currChrom][currf1], f1Samp)
         insertSite(site, file2Blocks[currChrom][currf2], f1Samp)        
         
     #find overlaps
+    sys.stderr.write("Finding overlaps (Run time: %.2f)...\n" % ((time.time()-start_time)/60)) 
     print("START\tEND\tDiff1\tDiff2")
     for chrom in file1Blocks.keys():
         if not file2Blocks.has_key(chrom) or not file2Blocks[chrom]:
