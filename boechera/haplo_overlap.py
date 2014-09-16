@@ -64,7 +64,7 @@ def __main__():
             currf2 = min(currf2+1, len(file2Blocks[currChrom])-1)
             
         if site.ALT[0] != ".":#skip non-SNP sites, they wont be different
-            sys.stderr.write("%s\n%s %s\n" % (site, file1Blocks[currChrom][currf1].haplotype1, f1Samp))    
+            sys.stderr.write("%s\n%s\n%s\n" % (site, file1Blocks[currChrom][currf1], file1Blocks[currChrom][currf1].haplotype1))    
             insertSite(site, file1Blocks[currChrom][currf1], f1Samp)
             insertSite(site, file2Blocks[currChrom][currf2], f1Samp)   
             sys.stderr.write("%s\n" % file1Blocks[currChrom][currf1].haplotype1)     
