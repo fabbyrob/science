@@ -1,0 +1,6 @@
+gene g1 + 100 800 1
+gene g2 + 2000 2800 1
+gene g3 - 3000 3800 1
+intron 100 150
+intron 300 350
+intron 700 850

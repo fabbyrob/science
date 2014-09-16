@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/repos/!svn/ver/1074/robert.williamson/trunk/lazyLoop
+END
+echo_loop.txt
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/repos/!svn/ver/983/robert.williamson/trunk/lazyLoop/echo_loop.txt
+END
+loop_param_ordered.txt
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/repos/!svn/ver/983/robert.williamson/trunk/lazyLoop/loop_param_ordered.txt
+END
+waiter_loop.txt
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/repos/!svn/ver/983/robert.williamson/trunk/lazyLoop/waiter_loop.txt
+END
+waiter.py
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/repos/!svn/ver/983/robert.williamson/trunk/lazyLoop/waiter.py
+END
+loop.txt
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/repos/!svn/ver/983/robert.williamson/trunk/lazyLoop/loop.txt
+END
+lazyLoopGeneral.py
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/repos/!svn/ver/1074/robert.williamson/trunk/lazyLoop/lazyLoopGeneral.py
+END
+loop_flag.txt
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/repos/!svn/ver/983/robert.williamson/trunk/lazyLoop/loop_flag.txt
+END

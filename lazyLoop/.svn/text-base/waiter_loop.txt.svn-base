@@ -1,0 +1,6 @@
+program python2.7 /Users/wiliarj/Documents/workspaces/general/robert.williamson/trunk/lazyLoop/waiter.py
+processes 2
+replicate 1
+? 0.001
+? 5 50
+> OUTPUT

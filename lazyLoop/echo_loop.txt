@@ -1,0 +1,6 @@
+program echo
+processes 1
+replicate 1
+? 1 2 3
+? "yeah" "apples" "bear"
+> OUTPUT

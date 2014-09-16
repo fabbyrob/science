@@ -1,0 +1,4 @@
+/usr/bin/less  testrun.txt
+perl /home/robert.williamson/repos/robert.williamson/trunk/GenomeCalling/countHets.pl called.txt hetCounts2.txt
+/usr/bin/head /home/robert.williamson/repos/robert.williamson/trunk/Wrapper/wrapper.py
+/usr/bin/ls
