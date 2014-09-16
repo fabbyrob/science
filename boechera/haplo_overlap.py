@@ -110,17 +110,17 @@ def insertSite(site, block, samp):
             return
         geno = site.samples[samp]
         
-        sys.stderr.write("%s\n%s\n%s\n" % (site, block, block.haplotype1))
+        #sys.stderr.write("%s\n%s\n%s\n" % (site, block, block.haplotype1))
         
         if "GT" in geno.keys() and "." not in geno["GT"]:
             g1, g2 = map(int, geno["GT"].split("/"))
             if g1 == g2:#dont add heterozygotes... dont know the haplotype
                 block.addSNP(site.CHROM, site.POS, site.REF, site.ALT[0], g1, g2, "")
-                sys.stderr.write("%s\n" % (block.haplotype1))
+                #sys.stderr.write("%s\n" % (block.haplotype1))
                 return
         #don't know the site genotype add "N"
         block.addSNP(site.CHROM, site.POS, site.REF, site.ALT, -1, -1, "")
-        sys.stderr.write("%s\n" % (block.haplotype1))
+        #sys.stderr.write("%s\n" % (block.haplotype1))
 
 use = "python haplo_overlap.py myHap1.hapcut myHap2.hapcut myPooled.vcf Sample1 Sample2"
 
