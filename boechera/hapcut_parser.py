@@ -146,7 +146,7 @@ class Block:
         return diffs
     
     def __str__(self):
-        mystr = "BLOCK: chrom: %s offset %s len: %s SPAN: %s" % (self.chrom, self.offset, self.length, self.SPAN)
+        mystr = "BLOCK(chrom: %s start: %s offset %s len: %s SPAN: %s)" % (self.chrom, self.start, self.offset, self.length, self.SPAN)
         return mystr
     
     def __lt__(self, other):
