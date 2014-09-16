@@ -64,8 +64,10 @@ def __main__():
             currf2 = min(currf2+1, len(file2Blocks[currChrom])-1)
             
         if site.ALT != ".":#skip non-SNP sites, they wont be different
+            sys.stderr.write("%s\n%s %s\n" % (site, file1Blocks[currChrom][currf1], f1Samp))    
             insertSite(site, file1Blocks[currChrom][currf1], f1Samp)
-            insertSite(site, file2Blocks[currChrom][currf2], f1Samp)        
+            insertSite(site, file2Blocks[currChrom][currf2], f1Samp)   
+            sys.stderr.write("%s\n" % file1Blocks[currChrom][currf1])     
         
     #find overlaps
     sys.stderr.write("Finding overlaps (Run time: %.2f)...\n" % ((time.time()-start_time)/60)) 
