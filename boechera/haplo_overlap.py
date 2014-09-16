@@ -35,6 +35,7 @@ def __main__():
         file2Blocks[k].sort()
        
     sys.stderr.write("Processing VCFs (Run time: %.2f)...\n" % ((time.time()-start_time)/60)) 
+    ctr = 0
     #add in all the homozygous data
     currf1 = 0
     currf2 = 0
@@ -45,6 +46,9 @@ def __main__():
     f2Samp = vReader.samples.index(sys.argv[5])
     
     for site in vReader:
+        ctr += 1
+        if ctr % 5000 == 0:
+            sys.stderr.write("\tProcessed %s VCF lines (Run time: %.2f)...\n" % ((time.time()-start_time)/60))
         if not currChrom:
             currChrom = site.CHROM
             
