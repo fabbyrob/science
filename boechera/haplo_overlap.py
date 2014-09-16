@@ -63,11 +63,11 @@ def __main__():
         if file1Blocks[currChrom][currf2].end < site.POS:
             currf2 = min(currf2+1, len(file2Blocks[currChrom])-1)
             
-        if site.ALT != ".":#skip non-SNP sites, they wont be different
-            sys.stderr.write("%s\n%s %s\n" % (site, file1Blocks[currChrom][currf1], f1Samp))    
+        if site.ALT[0] != ".":#skip non-SNP sites, they wont be different
+            sys.stderr.write("%s\n%s %s\n" % (site, file1Blocks[currChrom][currf1].haplotype1, f1Samp))    
             insertSite(site, file1Blocks[currChrom][currf1], f1Samp)
             insertSite(site, file2Blocks[currChrom][currf2], f1Samp)   
-            sys.stderr.write("%s\n" % file1Blocks[currChrom][currf1])     
+            sys.stderr.write("%s\n" % file1Blocks[currChrom][currf1].haplotype1)     
         
     #find overlaps
     sys.stderr.write("Finding overlaps (Run time: %.2f)...\n" % ((time.time()-start_time)/60)) 
@@ -113,7 +113,7 @@ def insertSite(site, block, samp):
         if "GT" in geno.keys() and "." not in geno["GT"]:
             g1, g2 = map(int, geno["GT"].split("/"))
             if g1 == g2:#dont add heterozygotes... dont know the haplotype
-                block.addSNP(site.CHROM, site.POS, site.REF, site.ALT, g1, g2, "")
+                block.addSNP(site.CHROM, site.POS, site.REF, site.ALT[0], g1, g2, "")
                 return
         #don't know the site genotype add "N"
         block.addSNP(site.CHROM, site.POS, site.REF, site.ALT, -1, -1, "")
