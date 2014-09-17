@@ -57,10 +57,10 @@ def __main__():
             currf1 = 0
             currf2 = 0
             
-        if file1Blocks[currChrom][currf1].end < site.POS:
+        if file1Blocks[currChrom] and file1Blocks[currChrom][currf1].end < site.POS:
             currf1 = min(currf1+1, len(file1Blocks[currChrom])-1)
             
-        if file1Blocks[currChrom][currf2].end < site.POS:
+        if file2Blocks[currChrom] and file2Blocks[currChrom][currf2].end < site.POS:
             currf2 = min(currf2+1, len(file2Blocks[currChrom])-1)
             
         if site.ALT[0] != ".":#skip non-SNP sites, they wont be different
