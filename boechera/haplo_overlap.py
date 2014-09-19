@@ -63,7 +63,7 @@ def __main__():
         if file2Blocks[currChrom] and file2Blocks[currChrom][currf2].end < site.POS:
             currf2 = min(currf2+1, len(file2Blocks[currChrom])-1)
             
-        if site.ALT[0] != ".":#skip non-SNP sites, they wont be different
+        if site.ALT[0] != "." and file1Blocks[currChrom]:#skip non-SNP sites, they wont be different
             #sys.stderr.write("%s\n%s\n%s\n" % (site, file1Blocks[currChrom][currf1], file1Blocks[currChrom][currf1].haplotype1))    
             insertSite(site, file1Blocks[currChrom][currf1], f1Samp)
             insertSite(site, file2Blocks[currChrom][currf2], f1Samp)   
