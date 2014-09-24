@@ -65,8 +65,12 @@ def __main__():
             
         if site.ALT[0] != "." and file1Blocks[currChrom]:#skip non-SNP sites, they wont be different
             #sys.stderr.write("%s\n%s\n%s\n" % (site, file1Blocks[currChrom][currf1], file1Blocks[currChrom][currf1].haplotype1))    
-            insertSite(site, file1Blocks[currChrom][currf1], f1Samp)
-            insertSite(site, file2Blocks[currChrom][currf2], f1Samp)   
+            try:
+                insertSite(site, file1Blocks[currChrom][currf1], f1Samp)
+                insertSite(site, file2Blocks[currChrom][currf2], f1Samp)  
+            except IndexError:
+                sys.stderr.write("Index error. Chrom: %s Block 1 len: %s Block 2 len: %s. Index 1: %s Index 2: %s.\n" % (currChrom, len(file1Blocks[currChrom]), len(file2Blocks[currChrom]), currf1, currf2)) 
+                sys.stderr.write("Skipping line...")
             #sys.stderr.write("%s\n" % file1Blocks[currChrom][currf1].haplotype1)     
         
     #find overlaps
