@@ -72,7 +72,7 @@ def __main__():
         qual = record.QUAL
         af = 0
         
-        if qual not in quals.keys():
+        if not quals.has_key(qual):
             quals[qual] = 1
         else:
             quals[qual] += 1
@@ -82,7 +82,7 @@ def __main__():
             if 'DP' in samp.keys():
                 depth = samp['DP'][0]
                 
-                if depth not in depths.keys():
+                if not depths.has_key(depth):
                     depths[depth] = 1
                 else:
                     depths[depth] += 1
