@@ -66,7 +66,7 @@ def __main__():
     ctr = 0
     for record in vcf_reader:
         if ctr % 5000 == 0:
-            sys.stderr.write("Processed up to %s lines...\n" % ctr)
+            sys.stderr.write("Processed up in here yo to %s lines...\n" % ctr)
         ctr += 1
         
         qual = record.QUAL
