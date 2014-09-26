@@ -128,7 +128,7 @@ class Block:
     def getOverlap(self, oStart, oEnd):
         overlap1 = []
         overlap2 = []
-        for s in sels.SNPs:
+        for s in self.SNPs:
             if s > oEnd:#we've reached the end
                 break
             
