@@ -128,13 +128,13 @@ class Block:
     def getOverlap(self, oStart, oEnd):
         overlap1 = []
         overlap2 = []
-        for s in self.SNPs:
+        for i, s in enumerate(self.SNPs):
             if s > oEnd:#we've reached the end
                 break
             
             if s >= oStart:
-                overlap1.append(self.haplotype1[s])
-                overlap2.append(self.haplotype2[s])
+                overlap1.append(self.haplotype1[i])
+                overlap2.append(self.haplotype2[i])
         
     def difference(self, hap1, hap2):
         diffs = 0.0
