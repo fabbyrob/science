@@ -136,6 +136,8 @@ class Block:
                 overlap1.append(self.haplotype1[i])
                 overlap2.append(self.haplotype2[i])
         
+        return overlap1, overlap2
+        
     def difference(self, hap1, hap2):
         diffs = 0.0
         
