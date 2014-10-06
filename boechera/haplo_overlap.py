@@ -99,7 +99,7 @@ def __main__():
 def overlap(B1, B2):
     start = max(B1.start, B2.start)
     end = min(B1.end, B2.end)
-    b1Hap1, = B1.getOverlap(start, end)
+    b1Hap1, b1Hap2 = B1.getOverlap(start, end)
     b2Hap1, b2Hap2 = B2.getOverlap(start, end)
     
     diff1 = B1.difference(b1Hap1, b2hap1)
