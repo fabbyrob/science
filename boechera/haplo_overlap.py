@@ -47,7 +47,7 @@ def __main__():
     
     for site in vReader:
         ctr += 1
-        if ctr % 5000 == 0:
+        if ctr % 50000 == 0:
             sys.stderr.write("\tProcessed %s VCF lines (Run time: %.2f)...\n" % (ctr, (time.time()-start_time)/60))
         if not currChrom:
             currChrom = site.CHROM
@@ -102,7 +102,7 @@ def overlap(B1, B2):
     b1Hap1, b1Hap2 = B1.getOverlap(start, end)
     b2Hap1, b2Hap2 = B2.getOverlap(start, end)
     
-    diff1 = B1.difference(b1Hap1, b2hap1)
+    diff1 = B1.difference(b1Hap1, b2Hap1)
     diff2 = B1.difference(b1Hap1, b2Hap2)
     
     return (start, end, diff1, diff2) if end - start > 0 else None
