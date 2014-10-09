@@ -83,7 +83,7 @@ def __main__():
         for b1 in file1Blocks[chrom]:
             if not file2Blocks[chrom]:
                 break
-            while file2Blocks[chrom][0].start < b1.start and file2Blocks[chrom][0].end < b1.start:
+            while file2Blocks[chrom] and file2Blocks[chrom][0].start < b1.start and file2Blocks[chrom][0].end < b1.start:
                 file2Blocks[chrom].pop() 
                 
             for b2 in file2Blocks[chrom]:
