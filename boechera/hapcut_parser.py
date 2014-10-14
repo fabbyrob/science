@@ -53,6 +53,9 @@ class Reader:
     def __iter__(self):
         myBlock = None
         for line in self.hapcut:
+            if not line:
+                continue
+            
             if line.startswith("*"):
                 yield myBlock
                 myBlock = None
@@ -65,7 +68,7 @@ class Reader:
                 myBlock = Block(sline[2], sline[4], sline[6], sline[8], sline[10], sline[12])
             else:
                 if not myBlock:
-                    raise(MissingBlock("Trying to add to a block that hasn't been started. Is the file formatted correctly? Line: %s" % (line)))
+                    raise(MissingBlock("Trying to add to a block that hasn't been started. Is the file formatted correctly? Line: '%s'" % (line)))
                 myBlock.addSNP(sline[3], int(sline[4]), sline[5], sline[6], int(sline[1]), int(sline[2]), " ".join(sline[7:]))
             
         yield myBlock
