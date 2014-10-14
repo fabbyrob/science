@@ -13,6 +13,7 @@ from collections import defaultdict
 
 def __main__():
     start_time = time.time()
+    print(sys.argv)
     hap1 = Reader(open(sys.argv[1]))
     hap2 = Reader(open(sys.argv[2]))
     
