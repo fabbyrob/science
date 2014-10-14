@@ -64,6 +64,8 @@ class Reader:
                     raise(UnfinishedBlock("A new Block started in the file before the end of the previous one was delimited (Old block: %s).\n\tDo your blocks have \'********\' on the lines between them?" % myBlock))
                 myBlock = Block(sline[2], sline[4], sline[6], sline[8], sline[10], sline[12])
             else:
+                if not myBlock:
+                    raise(MissingBlock("Trying to add to a block that hasn't been started. Is the file formatted correctly? Line: %s" % (line)))
                 myBlock.addSNP(sline[3], int(sline[4]), sline[5], sline[6], int(sline[1]), int(sline[2]), " ".join(sline[7:]))
             
         yield myBlock
@@ -165,6 +167,9 @@ class DuplicatePosition(Exception):
     pass
 
 class UnfinishedBlock(Exception):
+    pass
+
+class MissingBlock(Exeption):
     pass
 
 if __name__ == "__main__":
