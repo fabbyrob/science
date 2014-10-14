@@ -169,7 +169,7 @@ class DuplicatePosition(Exception):
 class UnfinishedBlock(Exception):
     pass
 
-class MissingBlock(Exeption):
+class MissingBlock(Exception):
     pass
 
 if __name__ == "__main__":
