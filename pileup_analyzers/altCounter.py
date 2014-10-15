@@ -89,7 +89,7 @@ def callSite(record, window, dwindow):
         #not a biallelic site
         #ambig
         sys.stderr.write("Non-standard base for alternate: "+str(record.ALT)+" at "+str(record.CHROM)+", "+str(record.POS)+". Calling ambiguous\n")
-        return (freq)
+        return (window, dwindow)
     
     freq = 0
     freqFail = False
