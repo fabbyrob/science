@@ -1,19 +1,19 @@
-data = read.table("/Users/wiliarj/Desktop/temp/orientalis.200000.txt", header=T)
+data = read.table("/Users/williarj/Desktop/temp/2n.coverage.txt", header=T)
 
-name = "orientalis.coverage"
+name = "fijiensis.2n.coverage.mean"
 pdfer = 1
-ratio = 2
+ratio = 2#0 = %homo and % het sep; 1 = ratio of het:homo; 2 = coverage
 names = unique(data$ind)
 if(pdfer == 1){
-    pdf(paste("/Users/wiliarj/Desktop/temp/",name,"1.pdf", sep = ""), width = 12, height = 15)
+    pdf(paste("/Users/williarj/Desktop/temp/",name,".pdf", sep = ""), width = 12, height = 15)
 }
 if (pdfer == 2){
-    jpeg(paste("/Users/wiliarj/Desktop/temp/",name,"1.jpg", sep = ""))
+    jpeg(paste("/Users/williarj/Desktop/temp/",name,".jpg", sep = ""))
 }
 par(mfrow=c(10, 1), mar=c(3,3,1,1))
 data$total = data$num_homo+data$num_het+data$num_homo_ref
 gap = 2000000
-win = 200000
+win = 5000
 
 maxs = c()
 for (i in unique(data$pos)){
@@ -24,7 +24,7 @@ for (i in unique(data$pos)){
 scafs = unique(data$pos)
 i = 0
 tp = "p"
-for (n in names[1:10]){
+for (n in names){
     i = i + 1
     sdata = data[data$ind==n,]
     if (ratio == 0){
@@ -38,7 +38,7 @@ for (n in names[1:10]){
     } else{
         ymax = max(data$total/win)
     }
-    xmax = max(sum(maxs)+7*gap)
+    xmax = max(sum(maxs)+3*gap)
     j = 0
     hets = 0
     hom = 0
