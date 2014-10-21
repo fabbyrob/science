@@ -68,8 +68,8 @@ def __main__():
             scaf = m.group(1)
             start = int(m.group(2))
             end = int(m.group(3))
-            name = m.group(4)
-            dir = m.group(5)
+            name = m.group(5)
+            dir = m.group(4)
             
             if scaf not in annot.keys():
                 annot[scaf] = []
