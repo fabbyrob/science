@@ -24,6 +24,7 @@ _t = 1000
 _N = 26
 _c = None
 _d = False
+_h = False
 
 params = {}
 
@@ -74,6 +75,9 @@ def __main__():
         pos = int(sline[1])
         ref = int(sline[4])#number of reference alleles at site
         tot = int(sline[6])#total number of alleles at site, if this is not _N throw out the site
+        if _h:
+            ref /= 2
+            tot /=2
         type = sline[7].split(",")
         div = int(sline[8])
         
@@ -195,17 +199,19 @@ def calcWindow(chrom, start, end, window, window_divergence, window_coding):
     try:
         out = "%s\t%s\t%s\t%s\t%s\t%s" % (chrom, midpoint, float(pi)/piSites, float(theta)/nS, tajd, div)
         if _d:
-            out += "\t"+str(sum(window_coding)/float(_w))
+            out += "\t"+str(sum(window_coding)/len(window))
         print(out)
     except ZeroDivisionError:
         out = "%s\t%s\t%s\t%s\t%s\t%s" % (chrom, midpoint, "NA", "NA", tajd, div)
         if _d:
-            out += "\t"+str(sum(window_coding)/float(_w))
+            out += "\t"+str(sum(window_coding)/len(window))
+        print(out) 
     except ValueError:
         out = "%s\t%s\t%s\t%s\t%s\t%s" % (chrom, midpoint, "NA", "NA", tajd, div)
         if _d:
-            out += "\t"+str(sum(window_coding)/float(_w)) 
-    
+            out += "\t"+str(sum(window_coding)/len(window)) 
+        print(out)    
+
 def calcPi(midpoint, window):
     total = 0
     numSites = 0.0
@@ -273,7 +279,7 @@ def calcDivergence(midpoint, window):
 
 def processArgs(num):
     try: 
-        opts, args = getopt.getopt(sys.argv[num:],"w:s:t:N:c:d")
+        opts, args = getopt.getopt(sys.argv[num:],"w:s:t:N:c:dh")
     except getopt.GetoptError:
         usage()
     
@@ -283,6 +289,7 @@ def processArgs(num):
     global _N
     global _c
     global _d
+    global _h
     
     for opt, arg in opts:
         if opt == "-w":
@@ -298,6 +305,8 @@ def processArgs(num):
             _c = arg
         elif opt == "-d":
             _d = True
+        elif opt == "-h":
+            _h = True
         else:
             print ("Unrecognized option: "+opt+"\n")
             usage()
