@@ -69,7 +69,9 @@ def __main__():
             sys.stderr.write("Processed up in here yo to %s lines...\n" % ctr)
         ctr += 1
         
-        qual = record.QUAL
+        qual = int(record.QUAL)#sets the max qual to 200, to limit the file size
+        if qual > 200:
+            qual = 200
         af = 0
         
         if not quals.has_key(qual):
