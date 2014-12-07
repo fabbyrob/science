@@ -10,6 +10,7 @@ print(reader.Header)
 prev = []
 skip = 0
 for record in reader:
+    dup = False
     #sys.stderr.write("Checking %s  %s.\n"%(skip,record))
     if prev and record.POS == prev[-1].POS:#reached an indel
         #do stuff to fix it
@@ -23,13 +24,14 @@ for record in reader:
             skip = _w
         #DONOT add this record to the list, because it is a duplicate
         #the previous non-indel version is already in there with a total of 0
-    
+        dup = True
+
     if len(prev) == _w+1:#+1 because we want to keep one mroe than window size, to throw out the duplicate site too
         print(prev.pop(0))
 
-    if not skip:
+    if not skip and not dup:
         prev.append(record)
-    else:
+    elif not dup:
         record.TOTAL = 0
         prev.append(record)
         skip -= 1
