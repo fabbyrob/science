@@ -8,7 +8,6 @@ echo "pulling..."
 git pull 
 echo "adding..."
 git add $2 #add the file
-echo "committing..."i
-echo $3
+echo "committing..."
 git commit -m "$3" #commit changes, with a comment
-#git push origin master
+git push origin master
