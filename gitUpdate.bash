@@ -9,5 +9,9 @@ git pull
 echo "adding..."
 git add $2 #add the file
 echo "committing..."
-git commit -m '$3' #commit changes, with a comment
+while [ -n "$3" ]; do
+	message = "$message $3"
+	shift
+done
+git commit -m \'$message\' #commit changes, with a comment
 git push origin master
