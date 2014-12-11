@@ -33,7 +33,8 @@ Block:
         TODO: expand this
         
     Block.haplotype1 / Block.haplotype2 - these attributes are lists specifying each haplotype (i.e. ["A","T","T"..])
-    
+    Block.haplo1_dict / Block.haplo2_dict - these attributes are dictionaryes that specify if each haplotype has the 'REF' or 'Alt' allele at each SNP
+
     Block.difference(hap1, hap2) - this function counts and returns the number of differences between two haplotypes. By default it returns the differences of
         the two haplotypes of self
     Block.getOverlap(start, end) - returns 2 lists of the haplotype nucleotides that fall within start and stop
@@ -94,7 +95,10 @@ class Block:
         self.quals = {}
         self.haplotype1 = []
         self.haplotype2 = []
-        
+       
+        self.haplo1_dict = {}#POS: {'REF', 'ALT'} maps position to either REF or ALT for this haplotype
+        self.haplo2_dict = {}
+
     #adds a SNP to this haplotype block
     def addSNP(self, chrom, pos, REF, ALT, hap1, hap2, qual):
         if not self.chrom:
@@ -121,15 +125,19 @@ class Block:
         
         if hap1 == 1:
             self.haplotype1.insert(i, ALT)
+            self.haplo1_dict[pos] = 'ALT'
         elif hap1 == 0:
             self.haplotype1.insert(i, REF)
+            self.haplo1_dict[pos] = 'REF'
         else:
             self.haplotype1.insert(i, "N")
             
         if hap2 == 1:
             self.haplotype2.insert(i, ALT)
+            self.haplo2_dict[pos] = 'ALT'
         elif hap2 == 0:
             self.haplotype2.insert(i, REF)
+            self.haplo2_dict[pos] = 'REF'
         else:
             self.haplotype2.insert(i, "N")
     
