@@ -118,7 +118,7 @@ def usage():
     
 def details():
     print (use)
-    print("INFILE - either a global alignment to get pickled, or a list of sites to check for divergence in the file provided with -d")
+    print("INFILE - a whole genome alignment to calculate divergence from, only works on one scaffold at a time.")
     print("w (5) - the window around indels to ignore")
     print("o (divergence.txt) - if in pickle mode, the file to save the pickled genome")
     
