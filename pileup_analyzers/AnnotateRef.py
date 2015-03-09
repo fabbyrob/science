@@ -3,7 +3,7 @@ import re
 import getopt
 from Queue import PriorityQueue
 
-_log = __file__.split("/")[-1]+".log"#log file name
+#_log = __file__.split("/")[-1]+".log"#log file name
 
 codes = {'intergene':0 , 'intron':1, 'exon':2, '0fold':3, '4fold':4, '3utr':5, '5utr':6, 'istop':7, 'stop':8, 'unknown':9}
 
@@ -41,11 +41,11 @@ def __main__():
         print("Bad annotation file name: "+sys.argv[1])
         sys.exit()
         
-    logfile = open(_log,"w")
+ #   logfile = open(_log,"w")
     
-    if (logfile == None):
-        print("Bad logfile name: "+_log)
-        sys.exit()
+  #  if (logfile == None):
+   #     print("Bad logfile name: "+_log)
+    #    sys.exit()
        
     print(codes)
         
@@ -105,20 +105,20 @@ def __main__():
                 baseNum += 1
                 if len(annot[scaf]) > 0:
                     gene = annot[scaf][0]
-                    #print(gene.getStart())
-                    #print(baseNum)
+         #           print(gene.getStart())
+          #          print(baseNum)
                     if baseNum < gene.getStart():#we havent reached a gene yet!
                         fullQueue.put((baseNum, scaf, base, codes['intergene'], 'N', '0'))
-                        #print('not gene yet')
+            #            print('not gene yet')
                     elif baseNum >= gene.getNextStart() and baseNum < gene.getNextEnd():#middle of the exon stick it on the to-process queue!
                         exonQueue.append((baseNum, base))
-                        #print('exon')
+           #             print('exon')
                     elif baseNum == gene.getNextEnd():#end of the exon
-                        #print('end of exon '+str(gene.name))
+                        sys.stderr.write(str(baseNum) + 'end of exon '+str(gene.name)+"\n")
                         exonQueue.append((baseNum, base))
                         annot[scaf][0].popExon()
                         if annot[scaf][0].empty():#end of the gene
-                            #print('end of gene')
+                            sys.stderr.write('end of gene\n')
                             #sys.stderr.write("tiger "+str(baseNum)+"\n")
                             results = process(exonQueue, scaf, gene.name, gene.dir)
                             for i in results:
@@ -130,7 +130,7 @@ def __main__():
                             while len(annot[scaf]) > 0 and annot[scaf][0].getStart() <= baseNum:
                                 sys.stderr.write("Gene start before the end of previous gene (skipping)! "+str(annot[scaf][0])+"\n")
                                 annot[scaf].pop(0)#get rid of the gene in our list
-                            #sys.stderr.write("next: "+str(annot[scaf][0])+"\n")
+                            sys.stderr.write("next: "+str(annot[scaf][0])+"\n")
                             
                     else:#after the start of the gene, but not within the next exon == intron
                         fullQueue.put((baseNum, scaf, base, codes['intron'], gene.name, '0'))
@@ -158,7 +158,9 @@ def process(queue, scaf, name, dir):
         codon = ""
         for i in bases:
             codon += str(i[1])
-        
+       
+        codon = codon.upper()
+
         #flip the codon if we're on a - strand gene
         if dir == "-":
             codon = sense(codon)
@@ -168,7 +170,10 @@ def process(queue, scaf, name, dir):
         
         #add each base to the output
         c = 0
+       # print(bases)
         for b in bases:
+       #     print(b)
+       #     print(myCodes, c)
             result = (b[0], scaf, b[1], myCodes[c], name, dir)
             output.append(result)
             c += 1
