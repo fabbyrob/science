@@ -5,7 +5,8 @@ from Queue import PriorityQueue
 
 #_log = __file__.split("/")[-1]+".log"#log file name
 
-codes = {'intergene':0 , 'intron':1, 'exon':2, '0fold':3, '4fold':4, '3utr':5, '5utr':6, 'istop':7, 'stop':8, 'unknown':9}
+#does not distinguish between 2 and 3 fold, but it can later
+codes = {'2fold':2, '3fold':2,'intergene':0 , 'intron':1, 'exon':2, '0fold':3, '4fold':4, '3utr':5, '5utr':6, 'istop':7, 'stop':8, 'unknown':9}
 
 def __main__():
     #check aruguments
@@ -34,7 +35,7 @@ def __main__():
     if (reference == None):
         print("Bad reference name: "+sys.argv[1])
         sys.exit()
-        
+
     annotation = open(sys.argv[2],"r")  
         
     if (annotation == None):
@@ -221,10 +222,113 @@ def printQueue(queue):
         print (scaf+"\t"+base+"\t"+ref+"\t"+name+"\t"+dir+"\t"+code)
         
     return queue
- 
+
+codon_table = '''
+#These are DNA codons
+#CODON BASE_1 BASE_2 BASE_3
+#Ala
+GCT 0fold 0fold 4fold
+GCC 0fold 0fold 4fold
+GCA 0fold 0fold 4fold
+GCG 0fold 0fold 4fold
+#Arg
+#the first base here is ambiguous, it can be 2 fold (NGA or NGG) or it can be 0fold (CGT and CGC)
+CGT 0fold 0fold 4fold *
+CGC 0fold 0fold 4fold *
+CGA 2fold 0fold 4fold
+CGG 2fold 0fold 4fold
+AGA 2fold 0fold 2fold
+AGG 2fold 0fold 2fold
+#Asn
+AAT 0fold 0fold 2fold
+AAC 0fold 0fold 2fold
+#Asp
+GAT 0fold 0fold 2fold
+GAC 0fold 0fold 2fold
+#Cys
+TGT 0fold 0fold 2fold
+TGC 0fold 0fold 2fold
+#Gin
+CAA 0fold 0fold 2fold
+CAG 0fold 0fold 2fold
+#Glu
+GAA 0fold 0fold 2fold
+GAG 0fold 0fold 2fold
+#Gly
+GGT 0fold 0fold 4fold
+GGC 0fold 0fold 4fold
+GGA 0fold 0fold 4fold
+GGG 0fold 0fold 4fold
+#His
+CAT 0fold 0fold 2fold
+CAC 0fold 0fold 2fold
+#Ile
+ATT 0fold 0fold 3fold
+ATC 0fold 0fold 3fold
+ATA 0fold 0fold 3fold
+#Met - Start
+#this one was just wrong before (last base was "exon")
+ATG 0fold 0fold 0fold *
+#Leu
+#this first one is ambiguous 2fold (for NTA and NTG) and 0fold (for CTT and CTC)
+TTA 2fold 0fold 2fold *
+TTG 2fold 0fold 2fold *
+CTT 0fold 0fold 4fold *
+CTC 0fold 0fold 4fold *
+CTA 2fold 0fold 4fold
+CTG 2fold 0fold 4fold
+#Lys
+AAA 0fold 0fold 2fold
+AAG 0fold 0fold 2fold
+#Phe
+TTT 0fold 0fold 2fold
+TTC 0fold 0fold 2fold
+#Pro
+#this one was just wrong before (last base was "exon")
+CCT 0fold 0fold 4fold *
+CCC 0fold 0fold 4fold *
+CCA 0fold 0fold 4fold *
+CCG 0fold 0fold 4fold *
+#Ser
+#These are all 0fold because the two codon types (TCN and AGN) do not share bases 
+TCT 0fold 0fold 4fold * 
+TCC 0fold 0fold 4fold * 
+TCA 0fold 0fold 4fold * 
+TCG 0fold 0fold 4fold * 
+AGT 0fold 0fold 2fold * 
+AGC 0fold 0fold 2fold * 
+#Thr
+ACT 0fold 0fold 4fold
+ACC 0fold 0fold 4fold
+ACA 0fold 0fold 4fold
+ACG 0fold 0fold 4fold
+#Trp
+#this one was just wrong before (last base was "exon")
+TGG 0fold 0fold 0fold *
+#Tyr
+TAT 0fold 0fold 2fold
+TAC 0fold 0fold 2fold
+#Val
+GTT 0fold 0fold 4fold
+GTC 0fold 0fold 4fold
+GTA 0fold 0fold 4fold
+GTG 0fold 0fold 4fold
+#STOP
+TAA stop stop stop
+TGA stop stop stop
+TAG stop stop stop 
+'''
+_codonDict = None
 def degeneracy(codon):
     #This should be dumped into an external file, not hardcoded
-    codonDict={"TTT":[codes['0fold'],codes['0fold'],codes['exon']],"TTC":[codes['0fold'],codes['0fold'],codes['exon']],"TTA":[codes['exon'],codes['0fold'],codes['exon']],"TTG":[codes['exon'],codes['0fold'],codes['exon']],"CTT":[codes['0fold'],codes['0fold'],codes['4fold']],"CTC":[codes['0fold'],codes['0fold'],codes['4fold']],"CTA":[codes['exon'],codes['0fold'],codes['4fold']],"CTG":[codes['exon'],codes['0fold'],codes['4fold']],"ATT":[codes['0fold'],codes['0fold'],codes['exon']],"ATC":[codes['0fold'],codes['0fold'],codes['exon']],"ATA":[codes['0fold'],codes['0fold'],codes['exon']],"ATG":[codes['0fold'],codes['0fold'],codes['exon']],"GTT":[codes['0fold'],codes['0fold'],codes['4fold']],"GTC":[codes['0fold'],codes['0fold'],codes['4fold']],"GTA":[codes['0fold'],codes['0fold'],codes['4fold']],"GTG":[codes['0fold'],codes['0fold'],codes['4fold']],"TCT":[codes['0fold'],codes['0fold'],codes['4fold']],"TCC":[codes['0fold'],codes['0fold'],codes['4fold']],"TCA":[codes['0fold'],codes['0fold'],codes['4fold']],"TCG":[codes['0fold'],codes['0fold'],codes['4fold']],"CCT":[codes['0fold'],codes['0fold'],codes['exon']],"CCC":[codes['0fold'],codes['0fold'],codes['exon']],"CCA":[codes['0fold'],codes['0fold'],codes['exon']],"CCG":[codes['0fold'],codes['0fold'],codes['exon']],"ACT":[codes['0fold'],codes['0fold'],codes['4fold']],"ACC":[codes['0fold'],codes['0fold'],codes['4fold']],"ACA":[codes['0fold'],codes['0fold'],codes['4fold']],"ACG":[codes['0fold'],codes['0fold'],codes['4fold']],"GCT":[codes['0fold'],codes['0fold'],codes['4fold']],"GCC":[codes['0fold'],codes['0fold'],codes['4fold']],"GCA":[codes['0fold'],codes['0fold'],codes['4fold']],"GCG":[codes['0fold'],codes['0fold'],codes['4fold']],"TAT":[codes['0fold'],codes['0fold'],codes['exon']],"TAC":[codes['0fold'],codes['0fold'],codes['exon']],"TAA":[codes['istop'],codes['istop'],codes['istop']],"TAG":[codes['istop'],codes['istop'],codes['istop']],"CAT":[codes['0fold'],codes['0fold'],codes['exon']],"CAC":[codes['0fold'],codes['0fold'],codes['exon']],"CAA":[codes['0fold'],codes['0fold'],codes['exon']],"CAG":[codes['0fold'],codes['0fold'],codes['exon']],"AAT":[codes['0fold'],codes['0fold'],codes['exon']],"AAC":[codes['0fold'],codes['0fold'],codes['exon']],"AAA":[codes['0fold'],codes['0fold'],codes['exon']],"AAG":[codes['0fold'],codes['0fold'],codes['exon']],"GAT":[codes['0fold'],codes['0fold'],codes['exon']],"GAC":[codes['0fold'],codes['0fold'],codes['exon']],"GAA":[codes['0fold'],codes['0fold'],codes['exon']],"GAG":[codes['0fold'],codes['0fold'],codes['exon']],"TGT":[codes['0fold'],codes['0fold'],codes['exon']],"TGC":[codes['0fold'],codes['0fold'],codes['exon']],"TGA":[codes['istop'],codes['istop'],codes['exon']],"TGG":[codes['0fold'],codes['0fold'],codes['exon']],"CGT":[codes['0fold'],codes['0fold'],codes['4fold']],"CGC":[codes['0fold'],codes['0fold'],codes['4fold']],"CGA":[codes['exon'],codes['0fold'],codes['4fold']],"CGG":[codes['exon'],codes['0fold'],codes['4fold']],"AGT":[codes['0fold'],codes['0fold'],codes['exon']],"AGC":[codes['0fold'],codes['0fold'],codes['exon']],"AGA":[codes['exon'],codes['0fold'],codes['exon']],"AGG":[codes['exon'],codes['0fold'],codes['exon']],"GGT":[codes['0fold'],codes['0fold'],codes['4fold']],"GGC":[codes['0fold'],codes['0fold'],codes['4fold']],"GGA":[codes['0fold'],codes['0fold'],codes['4fold']],"GGG":[codes['0fold'],codes['0fold'],codes['4fold']]}
+    global _codonDict
+    if not _codonDict:
+        for f in codon_table.split("\n"):
+            sf = f.split()
+            if f.startswith("#") or not f:
+                continue
+            _codonDict[f[0]] = [codes[sf[1]], codes[sf[2]], codes[sf[3]]]
+    
     #print codon
     #if a base is ambiguous then call it all exon, and move on
     if len(codon) < 3:
