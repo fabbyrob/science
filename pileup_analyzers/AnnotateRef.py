@@ -130,7 +130,7 @@ def __main__():
                             while len(annot[scaf]) > 0 and annot[scaf][0].getStart() <= baseNum:
                                 sys.stderr.write("Gene start before the end of previous gene (skipping)! "+str(annot[scaf][0])+"\n")
                                 annot[scaf].pop(0)#get rid of the gene in our list
-                            sys.stderr.write("next: "+str(annot[scaf][0])+"\n")
+       #                     sys.stderr.write("next: "+str(annot[scaf][0])+"\n")
                             
                     else:#after the start of the gene, but not within the next exon == intron
                         fullQueue.put((baseNum, scaf, base, codes['intron'], gene.name, '0'))
