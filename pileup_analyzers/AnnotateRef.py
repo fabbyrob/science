@@ -223,7 +223,8 @@ def printQueue(queue):
         
     return queue
 
-codon_table = #These are DNA codons
+codon_table = '''
+#These are DNA codons
 #CODON BASE_1 BASE_2 BASE_3
 #Ala
 GCT 0fold 0fold 4fold
@@ -265,7 +266,6 @@ CAC 0fold 0fold 2fold
 ATT 0fold 0fold 3fold
 ATC 0fold 0fold 3fold
 ATA 0fold 0fold 3fold
-'''
 #Met - Start
 #this one was just wrong before (last base was "exon")
 ATG 0fold 0fold 0fold *
