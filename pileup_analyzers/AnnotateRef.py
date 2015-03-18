@@ -323,12 +323,17 @@ def degeneracy(codon):
     #This should be dumped into an external file, not hardcoded
     global _codonDict
     if not _codonDict:
+        _codonDict = {}
         for f in codon_table.split("\n"):
+            #print(f)
             sf = f.split()
+            #print(sf)
             if f.startswith("#") or not f:
                 continue
-            _codonDict[f[0]] = [codes[sf[1]], codes[sf[2]], codes[sf[3]]]
+            _codonDict[sf[0]] = [codes[sf[1]], codes[sf[2]], codes[sf[3]]]
     
+    #print(_codonDict)
+
     #print codon
     #if a base is ambiguous then call it all exon, and move on
     if len(codon) < 3:
@@ -340,11 +345,13 @@ def degeneracy(codon):
         #exit(0)
 
     if ("N" in codon):
-        return (codes['0fold'],codes['0fold'],codes['exon'])
-    if codon in codonDict:
-        return codonDict[codon]
+        return (codes['unknown'],codes['unknown'],codes['unknown'])
+    if codon in _codonDict:
+        return _codonDict[codon]
     else:
-        return(codes['unkown'],codes['unkown'],codes['unkown'])
+        sys.stderr.write("Unknown codon %s\n" % codon)
+        #sys.exit()
+        return(codes['unknown'],codes['unknown'],codes['unknown'])
       
    
 use = "python "+__file__.split("/")[-1]+" ReferenceGenome.fa Annotation.txt"
