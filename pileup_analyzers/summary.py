@@ -123,8 +123,14 @@ class Summary(object):
         return "Summary\n\tTypes = %s\n\tSamples = %s" % (self.Types, self.Samples)
         
 class Site(object):
-    def __init__(self, summary, line):
+    def __init__(self, summary, *args, **kwargs):
         self.summary = summary
+        
+        if len(args) == 1 and not kwargs:
+            line = args[0]
+        else:
+            self.siteBuilder(*args, **kwargs)
+            return
         
         #process line
         sline = line.split()
@@ -148,6 +154,30 @@ class Site(object):
             self.DIR = None
             self.Genos = sline[9:]
             
+        self.Genotypes = {}
+        
+        for samp, geno in zip(self.summary.Samples, self.Genos):
+            self.Genotypes[samp] = geno
+      
+    def siteBuilder(self, CHROM, POS, REF, ALT, REF_NUM, ALT_NUM, TOTAL, Types, Genos, DIVERGENCE=None, GENE=None, DIR=None):
+        self.CHROM = CHROM
+        self.POS = POS
+        self.REF = REF
+        self.ALT = ALT
+        self.REF_NUM = REF_NUM
+        self.ALT_NUM = ALT_NUM
+        self.TOTAL = TOTAL
+        self.Types = Types
+        self.DIVERGENCE = DIVERGENCE
+        self.Genos = Genos
+        
+        if self.summary.hadGenes:
+            self.GENE = GENE
+            self.DIR = DIR
+        else:
+            self.GENE = None
+            self.DIR = None
+                        
         self.Genotypes = {}
         
         for samp, geno in zip(self.summary.Samples, self.Genos):
