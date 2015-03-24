@@ -301,7 +301,8 @@ def processArgs(num):
     try: 
         opts, args = getopt.getopt(sys.argv[num:],"q:d:D:L:i:t:f:aGvn")
     except getopt.GetoptError:
-        usage()
+        sys.stderr.write("Found some non-standard options, assuming they are for the filter...\n")
+        pass
     
     for opt, arg in opts:
         if opt == "-q":
