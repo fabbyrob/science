@@ -337,8 +337,11 @@ def processArgs(num):
             _n = True
         elif opt == "-f":
             global _f
-            arg = arg.replace(".py","")#can't have the .py in the file name
-            userFilter = __import__(arg)
+            arg = arg.replace(".py","").split("/")#can't have the .py in the file name
+            path = "/".join(arg[:-1])
+            sys.path.append(path)
+            
+            userFilter = __import__(arg[-1])
             _f = userFilter.filter
         else:
             print ("Unrecognized option: "+opt+"\n")
