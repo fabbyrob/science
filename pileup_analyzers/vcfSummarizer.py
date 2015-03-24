@@ -33,6 +33,8 @@ _v = False #verbose mode
 _G = False #genotype mode
 _a = False #gene mode
 _t = "" #file for divergence
+_n = False#haploid calling
+_f = None #the filter method to use, if none the default here is used, this is reassigned down the line
 
 def __main__():
     #check aruguments
@@ -81,7 +83,8 @@ def __main__():
                 sys.stderr.write("Ran out of sites.\n")
             break
         
-        ref, alt, total, genos = processSite(record)
+        #apply the filter to the record
+        ref, alt, total, genos = _f(record)
         
         if _t and record.POS < len(divergence.get(record.CHROM)):
             div = divergence[record.CHROM][record.POS]
@@ -195,7 +198,7 @@ def getMinMax(ls):
             mid = i
     return (min, mid, max)
 
-def processSite(record):
+def filter(record):
     ref = 0
     alt = 0
     
@@ -256,32 +259,47 @@ def processSite(record):
 #                    genos.append("A")
             
         if 'GQ' in sample.keys() and sample['GQ'] >= _L:
-            if sample['GT'] == "0/0":
-                ref += 2
-                genos.append("R")
-            elif sample['GT'] == "0/1":
-                ref += 1
-                alt += 1
-                genos.append("H")
-            elif sample['GT'] == '1/1':
-                alt += 2
-                genos.append("A")
-            elif sample['GT'] == './.':
-                genos.append("N")
+            if not _n:
+                if sample['GT'] == "0/0":
+                    ref += 2
+                    genos.append("R")
+                elif sample['GT'] == "0/1":
+                    ref += 1
+                    alt += 1
+                    genos.append("H")
+                elif sample['GT'] == '1/1':
+                    alt += 2
+                    genos.append("A")
+                elif sample['GT'] == './.':
+                    genos.append("N")
+            else:
+                if sample['GT'] == "0":
+                    ref += 1
+                    genos.append("R")
+                elif sample['GT'] == "1":
+                    alt += 1
+                    genos.append("A")
+                elif sample['GT'] == ".":
+                    genos.append("N")
         elif record.ALT[0] != ".":
             if _v:
                 sys.stderr.write("One sample: "+ str(sample['name']) +"lacks likelihoods at\n\t"+str(record)+"\n")
             genos.append("N")
             continue
         else:#its a homozygote, no alternate qualities
-            ref += 2
+            if not _n:
+                ref += 2
+            else:
+                ref += 1
             genos.append("R")
         
     return(ref, alt, ref+alt, genos)
 
+_f = filter #reassigning _f to the
+
 def processArgs(num):
     try: 
-        opts, args = getopt.getopt(sys.argv[num:],"q:d:D:L:i:t:aGv")
+        opts, args = getopt.getopt(sys.argv[num:],"q:d:D:L:i:t:f:aGvn")
     except getopt.GetoptError:
         usage()
     
@@ -313,9 +331,18 @@ def processArgs(num):
         elif opt == "-t":
             global _t 
             _t = arg
+        elif opt == "-n":
+            global _n
+            _n = True
+        elif opt == "-f":
+            global _f
+            arg = arg.replace(".py","")#can't have the .py in the file name
+            userFilter = __import__(arg)
+            _f = userFilter.filter
         else:
             print ("Unrecognized option: "+opt+"\n")
             usage()
+        sys.stderr.write(" ".join([s+" = %s;" for s in "qdDLitafGvn".split("")]) % (_q, _d, _D, _L, _i, _t, _a, _f, _G, _v, _n))
    
 use = "python "+__file__.split("/")[-1]+" VCF ANNOTATION [OPTIONS]"
 def usage():
@@ -335,6 +362,7 @@ To calculate allele counts at each site individuals who do not pass filters are 
 or if the entire site does not pass the quality or indel filters all individuals are excluded")
     print()
     print("option - argument type - default - description")
+    print("f - Str - "+str(_f)+" - the python script to load the filter method from. By default it uses the filter() method contained in this script. See the wiki for details on how to make your own filter.")
     print("q - INT - "+str(_q)+" - the minimum quality for a site to be considered")
     print("d - INT - "+str(_d)+" - the minimum coverage for an individual to be considered")
     print("D - INT - "+str(_D)+" - the maximum coverage for an individual to be considered")
@@ -344,5 +372,6 @@ or if the entire site does not pass the quality or indel filters all individuals
     print("v - None - "+str(_v)+" - this flag indicated that verbose mode should be used, the reason for excluding each site and individual will be printed to stderr")
     print("a - None - "+str(_a)+" - if this argument is used then the gene names from the given annotation are added to the summary")
     print("t - Str - "+str(_t)+" - this option takes a pickled file name where divergence info is located, if used divergence info is added to the summary.")
+    print("n - None -" + str(_n)+" - if this option is used then a haploid VCF is expected, haploid genotypes are output.")
 if __name__ == "__main__":   
     __main__()
