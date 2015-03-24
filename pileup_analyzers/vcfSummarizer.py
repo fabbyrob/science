@@ -346,7 +346,7 @@ def processArgs(num):
         else:
             print ("Unrecognized option: "+opt+"\n")
             usage()
-        sys.stderr.write(" ".join([s+" = %s;" for s in "qdDLitafGvn".split("")]) % (_q, _d, _D, _L, _i, _t, _a, _f, _G, _v, _n))
+        sys.stderr.write(" ".join([s+" = %s;" for s in "qdDLitafGvn"]) % (_q, _d, _D, _L, _i, _t, _a, _f, _G, _v, _n))
    
 use = "python "+__file__.split("/")[-1]+" VCF ANNOTATION [OPTIONS]"
 def usage():
