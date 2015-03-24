@@ -2,6 +2,10 @@ import vcf
 import sys
 import argparse
 
+#this is really important, so that the parsing works correctly
+if "--" in sys.argv:
+    sys.argv.remove("--")
+    
 #process the input arguments I want to use for my filter
 #note that these arguments should NOT be named the same as arguments
 #for vcfSummaraizer.py
@@ -24,7 +28,7 @@ parser.add_argument("-a", "--genes", action="store_true", help = "this flag turn
 parser.add_argument("-t", "--divergence", type= str, default = "", help = "this option takes a pickled divergence file, and will add divergence info to the output summary")
 parser.add_argument("-n", "--haploid", action="store_true", help = "this flag turns on haploid mode, a haploid VCF is expected and haploid filters should be used")
 ############ add your own arguments here ############
-
+#before you use these on the command line you need to add in an extra -- to separate the vcfSummarizer.py options from your filter's options
 parser.add_argument("-m", "--mapqual", type = int, default = 15, help = "The minimum map quality to call a site")#this is an example, feel free to delete it
 
 #####################################################
