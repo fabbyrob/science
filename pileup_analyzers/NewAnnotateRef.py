@@ -30,7 +30,7 @@ def main():
     for k in annotation.keys():#for each type
         for s in annotation[k].keys():#for each scaf
             bad_items = []
-            for i, item in eunumerate(annotation[k][s]): #for each item from the gff
+            for i, item in enumerate(annotation[k][s]): #for each item from the gff
                 if i == len(annotation[k][s])-1:
                     continue
                 if annotation[k][s][i+1].regions[0][0] < item.regions[-1][1]:
