@@ -76,7 +76,7 @@ def processSeq(scaf, seq, annotation):
             if item.type == "five_prime_UTR":
                 processBase(scaf, pos, base, codes["5utr"], item.name, item.dir)
             elif item.type == "three_prime_UTR":
-                processBase(scaf, pos, base, codes["5utr"], item.name, item.dir)
+                processBase(scaf, pos, base, codes["3utr"], item.name, item.dir)
             elif item.type == "CDS":
                 cds.append([pos, base])
             
