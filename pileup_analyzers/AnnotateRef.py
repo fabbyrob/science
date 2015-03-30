@@ -418,4 +418,5 @@ class Gene:
         return self.name + " " + str(self.exons)
     
 if __name__ == "__main__":   
+    sys.stderr.write("WARNING\nWARNING\nWARNING\nYou probably don't want to be using this. use NewAnnotateRef.py instead. I give no guarantees if you continue with what you're doing.\n")
     __main__()
