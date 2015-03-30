@@ -37,7 +37,7 @@ def main():
                     #if the start of the next item is before the end of this one
                     bad_items.append(annotation[k][s][i+1])
                     sys.stderr.write("Overlap between %s (%s, %s) and %s (%s, %s). Throwing out %s.\n" % (item.name, item.regions[0][0], item.regions[-1][1],\
-                                                                                                          annotation[k][s][i+1].regions[0][0], annotation[k][s][i+1].regions[-1][1], annotation[k][s][i+1].name, annotation[k][s][i+1].name))
+                                                                                                          annotation[k][s][i+1].name, annotation[k][s][i+1].regions[0][0], annotation[k][s][i+1].regions[-1][1], annotation[k][s][i+1].name))
       
             for i in bad_items:
                 annotation[k][s].remove(i)
