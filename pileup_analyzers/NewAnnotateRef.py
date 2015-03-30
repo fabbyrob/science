@@ -9,19 +9,21 @@ def main():
     #read in the annotation
     #throw out anything not CDS or UTR
     parser = GFFparser(open(args.annotation, 'r'))
-    annotation = {}#scaffold: [GFF items]
+    annotation = {"CDS":{}, "three_prime_UTR":{}, "five_prime_UTR":{}}#type: {scaffold: [GFF items]}
     for item in parser.generator():
-        if item.scaf not in annotation.keys():
-            annotation[item.scaf] = []
+        if item.type not in ["CDS", "three_prime_UTR", "five_prime_UTR"]:
+            continue
         
-        #I could make these inputs...
-        if item.type in ["CDS", "three_prime_UTR", "five_prime_UTR"]:
-            annotation[item.scaf].append(item)
+        if item.scaf not in annotation[item.type].keys():
+            annotation[item.type][item.scaf] = []
+        
+        annotation[item.type][item.scaf].append(item)
     
     #sort them on each scaffold so they appear in the right order
     #since GFFs aren't sorted for some reason
     for k in annotation.keys():
-        annotation[k] = sorted(annotation[k])
+        for l in annotation[k].keys():
+            annotation[k][l] = sorted(annotation[k][l])
       
     #read in the reference
     #pop off the next item in the GFF as we go
@@ -44,64 +46,58 @@ def main():
     if scaf and seq: processSeq(scaf, seq, annotation)
         
 def processSeq(scaf, seq, annotation):  
-    if scaf not in annotation.keys():
-        sys.stderr.write("No annotated items from %s, setting the entire chromosome to intergenic, you may want to check your gff...\n" % scaf)
-        item = None
-    else:
-        item = annotation[scaf].pop(0)
-        regions = sorted(item.regions)
+    #this assumes there is at least one region of each type on each scaffold
+    items = {}
+    regions = {}
+    for k in annotation.keys():
+        if scaf not in annotation[k].keys() or not annotation[k][scaf]:
+            sys.stderr.write("Warning: no annotated sites of type %s on scaf %s.\n" % (k, scaf))
+            items[k] = None
+            regions[k] = []
+            continue
+        items[k] = annotation[k][scaf].pop(0)
+        regions[k] = sorted(items[k].regions)
     
-    cds = []#for holding the cds bases and positions, in order
+    gene = []#for holding the cds bases and positions, in order
     introns = []#same for introns
     
     for i, base in enumerate(seq):
         pos = i+1
-        #catch any items that start before the current position
-        #this should only happen when two items in the annotion overlap
-        while item and regions[0][1] < pos:
-            sys.stderr.write("We missed the beginning of an item. Are you sure that your annotation has no overlapping items?\
-             \nSkipping GFFitem %s at pos = %s region = %s.\n" % (item, pos, regions[0]))
-            if annotation[scaf]:
-                item = annotation[scaf].pop(0)
-                regions = sorted(item.regions)
-            else:
-                item = None
+        utr3, items["three_prime_UTR"], regions["three_prime_UTR"] = checkType(items["three_prime_UTR"], pos, annotation["three_prime_UTR"], regions["three_prime_UTR"])
+        utr5, items["five_prime_UTR"], regions["five_prime_UTR"] = checkType(items["five_prime_UTR"], pos, annotation["five_prime_UTR"], regions["five_prime_UTR"])
+        cds, newCDS, regions["CDS"] = checkType(items["CDS"], pos, annotation["CDS"], regions["CDS"], gene, introns)
         
-        if not item or pos < regions[0][0] and not cds:
-            #either the end of the chromosome 
-            #or between genes
-            processBase(scaf, pos, base, codes["intergenic"])
-        #within the next region
-        elif pos >= regions[0][0] and pos <= regions[0][1]:
-            if item.type == "five_prime_UTR":
-                processBase(scaf, pos, base, codes["5utr"], item.name, item.dir)
-            elif item.type == "three_prime_UTR":
-                processBase(scaf, pos, base, codes["3utr"], item.name, item.dir)
-            elif item.type == "CDS":
-                cds.append([pos, base])
+        my_types = []
+        if utr3:
+            my_types.append(codes['3utr'])
+        if utr5:
+            my_types.append(codes['5utr'])
+        if cds:
+            gene.append([pos, base, my_types])
             
-            if pos == regions[0][1]:#at the end of the region
-                if len(regions) > 1:
-                    regions.pop(0)
-                else:
-                    if item.type == "CDS":
-                        #at the end of a gene , process it and output it
-                        processGene(item, cds, introns)
-                        cds = []
-                        introns = []
-                        
-                    if annotation[scaf] and item:
-                        item = annotation[scaf].pop(0)
-                        regions = sorted(item.regions)
-                    else:
-                        item = None
-        #waiting for the next region in a cds, aka intron
-        elif pos < regions[0][0] and cds:
-            introns.append([pos, base, codes["intron"]])
+        #check if we finished a gene
+        if items["CDS"] and (not newCDS or items["CDS"].name != newCDS.name):
+            #output the old gene
+            processGene(items["CDS"], gene, introns)
+            gene = []
+            introns = []
+            items["CDS"] = newCDS
             
-    if cds:
-        sys.stderr.write("Warning: There was a gene right at the end of a scaffold, you should make sure none of it was truncated. (%s%s)\n" % (item, ""))
-        processGene(item, cds, introns)
+        #check if we were in an intron
+        if not cds and gene:
+            my_types.append(codes['intron'])
+            introns.append([pos, base, my_types])
+            
+        #if no other types, then it was intergenic
+        if not my_types and not cds:
+            my_types.append(codes['intergenic'])
+        
+        if not cds and not gene:
+            processBase(scaf, pos, base, my_types)
+            
+    if gene:
+        sys.stderr.write("Warning: There was a gene right at the end of a scaffold, you should make sure none of it was truncated. (%s%s)\n" % (items["CDS"], ""))
+        processGene(items["CDS"], gene, introns)
             
 def parseArgs():
   parser = argparse.ArgumentParser(description="This takes a gff annotion and a reference genome in fasta format and lines them up annotating every site in the genome.")
@@ -112,9 +108,44 @@ def parseArgs():
 args = parseArgs()
 sys.stderr.write("%s\n" % args)
 
+'''takes an item, a position, a type dictionary, and a list of sorted regions
+checks if the current position overlaps within the next item in the given type
+updates the next item and regions as appropriate
+'''
+def checkType(item, pos, type, regions, gene=None, introns=None):
+    if not type or not regions:
+        return False, item, regions
+    
+    while item and regions[0][1] < pos:
+        sys.stderr.write("We missed the beginning of an item. Are you sure that your annotation has no overlapping items?\
+         \nSkipping GFFitem %s at pos = %s region = %s.\n" % (item, pos, regions[0]))
+        if type[item.scaf]:
+            item = type[item.scaf].pop(0)
+            regions = sorted(item.regions)
+        else:
+            item = None
+            regions = []
+            return False, item, regions
+    
+    if pos < regions[0][0]:
+        return False, item, regions
+    
+    if pos >= regions[0][0] and pos <= regions[0][1]:
+        if pos == regions[0][1]:
+            regions.pop(0)
+            if not regions:
+                if type[item.scaf]:
+                    item = type[item.scaf].pop(0)
+                    regions = sorted(item.regions)
+                else:
+                    item = None
+                    regions = []
+        return True, item, regions
+    return False, item, regions
+
 #outputs the given base
 def processBase(scaf, pos, base, code, gene = "N", dir = "0"):
-    print("%s %s %s %s %s %s" % (scaf, pos, base, gene, dir, code))
+    print("%s %s %s %s %s %s" % (scaf, pos, base, gene, dir, ",".join(map(str, code))))
 
 #processes a gene and outputs all bases in it
 def processGene(item, cds, introns):
@@ -131,7 +162,7 @@ def processGene(item, cds, introns):
         if i+2 >= len(cds):
             sys.stderr.write("Codon not a multiple of 3, setting it to unknown.\n")
             for j in range(i, len(cds)):
-                bases.append([cds[i][0], cds[i][1], codes["unknown"]])
+                bases.append([cds[i][0], cds[i][1], cds[i][2]+[codes["unknown"]]])
             continue
         
         #grab the codon
@@ -140,7 +171,7 @@ def processGene(item, cds, introns):
         codon_codes = degeneracy(codon)
         #add them to the list 
         for j in range(3):
-            bases.append([cds[i+j][0], cds[i+j][1], codon_codes[j]])           
+            bases.append([cds[i+j][0], cds[i+j][1], cds[i][2]+[codon_codes[j]]])           
             
     #un-compliment the bases if needed
     if item.dir == "-":
