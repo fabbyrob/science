@@ -22,9 +22,25 @@ def main():
     #sort them on each scaffold so they appear in the right order
     #since GFFs aren't sorted for some reason
     for k in annotation.keys():
-        for l in annotation[k].keys():
-            annotation[k][l] = sorted(annotation[k][l])
+        for s in annotation[k].keys():
+            annotation[k][s] = sorted(annotation[k][s])
       
+    sys.stderr.write("Checking overlaps. If you have any you may want to completely remove these regions downstream.\n")
+    #check for overlaps, print errors for problem regions, and eliminate one of them
+    for k in annotation.keys():#for each type
+        for s in annotation[k].keys():#for each scaf
+            bad_items = []
+            for i, item in eunumerate(annotation[k][s]): #for each item from the gff
+                if i == len(annotation[k][s])-1:
+                    continue
+                if annotation[k][s][i+1].regions[0][0] < item.regions[-1][1]:
+                    #if the start of the next item is before the end of this one
+                    bad_items.append(annotation[k][s][i+1])
+                    sys.stderr.write("Overlap between %s and %s. Throwing out %s.\n" % (item.name, annotation[k][s][i+1].name, annotation[k][s][i+1].name))
+      
+            for i in bad_items:
+                annotation[k][s].remove(i)
+                
     #read in the reference
     #pop off the next item in the GFF as we go
     #if we've missed all or part of it output an error
