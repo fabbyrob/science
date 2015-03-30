@@ -29,18 +29,7 @@ def main():
     #check for overlaps, print errors for problem regions, and eliminate one of them
     for k in annotation.keys():#for each type
         for s in annotation[k].keys():#for each scaf
-            bad_items = []
-            for i, item in enumerate(annotation[k][s]): #for each item from the gff
-                if i == len(annotation[k][s])-1:
-                    continue
-                if annotation[k][s][i+1].regions[0][0] < item.regions[-1][1]:
-                    #if the start of the next item is before the end of this one
-                    bad_items.append(annotation[k][s][i+1])
-                    sys.stderr.write("Overlap between %s (%s, %s) and %s (%s, %s). Throwing out %s.\n" % (item.name, item.regions[0][0], item.regions[-1][1],\
-                                                                                                          annotation[k][s][i+1].name, annotation[k][s][i+1].regions[0][0], annotation[k][s][i+1].regions[-1][1], annotation[k][s][i+1].name))
-      
-            for i in bad_items:
-                annotation[k][s].remove(i)
+            removeOverlaps(annotation[k][s])
                 
     #read in the reference
     #pop off the next item in the GFF as we go
@@ -61,6 +50,21 @@ def main():
             seq += line.rstrip()
     #get the last one
     if scaf and seq: processSeq(scaf, seq, annotation)
+
+'''removes overlapping sequences...
+'''
+def removeOverlaps(ls):
+    i = 0
+    while i < len(ls)-1:
+        item1 = ls[i]
+        item2 = ls[i+1]
+        if item2.regions[0][0] < item1.regions[-1][1]:
+            sys.stderr.write("Overlap between %s (%s, %s) and %s (%s, %s). Throwing out %s.\n" % \
+                             (item1.name, item1.regions[0][0], item1.regions[-1][1],\
+                              item2.name, item2.regions[0][0], item2.regions[-1][1], item2.name))
+            ls.pop(i+1)
+            continue
+        i += 1                 
         
 def processSeq(scaf, seq, annotation):  
     #this assumes there is at least one region of each type on each scaffold
