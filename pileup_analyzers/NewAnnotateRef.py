@@ -60,7 +60,7 @@ def processSeq(scaf, seq, annotation):
         #this should only happen when two items in the annotion overlap
         while item and regions[0][1] < pos:
             sys.stderr.write("We missed the beginning of an item. Are you sure that your annotation has no overlapping items?\
-             \nSkipping GFFitem %s at pos = %s.\n" % (item, pos))
+             \nSkipping GFFitem %s at pos = %s region = %s.\n" % (item, pos, regions[0]))
             if annotation[scaf]:
                 item = annotation[scaf].pop(0)
                 regions = sorted(item.regions)
