@@ -132,6 +132,7 @@ def processSeq(scaf, seq, annotation):
     annotatedSeq = [AnnotationItem(i+1, b, [], [], []) for i, b in enumerate(seq)]
     #read through each type of annotation
     for type in annotation.keys():
+        sys.stderr.write("Processing %s regions on %s.\n" % (type, scaf))
         my_regions = annotation[type][scaf]
         #add the codes for sites in each region
         for item in my_regions:
@@ -325,16 +326,16 @@ def processGeneOld(item, cds, introns):
 #returns the opposite strand of a sequence
 def sense(bases):
   for i, b in enumerate(bases):
-    if b[1] == "A":
-      bases[i][1] = "T"
-    elif b[1] == "T":
-      bases[i][1] = "A"
-    elif b[1] == "G":
-      bases[i][1] = "C"
-    elif b[1] == "C":
-      bases[i][1] = "G"
-    elif b[1] == "N":
-      bases[i][1] = "N"
+    if b == "A":
+      bases[i] = "T"
+    elif b == "T":
+      bases[i] = "A"
+    elif b == "G":
+      bases[i] = "C"
+    elif b == "C":
+      bases[i] = "G"
+    elif b == "N":
+      bases[i] = "N"
   return bases
 
 codon_table = '''
