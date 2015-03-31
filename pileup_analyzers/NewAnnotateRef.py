@@ -149,7 +149,7 @@ def processSeq(scaf, seq, annotation):
     #annotatated everything not yet annotated as intergenic
     for item in annotatedSeq:
         #check if sites need to be set ambiguous
-        if args.overlaps-unknown:
+        if args.overlaps_unknown:
             if isCoding(item) and len(item.types) > 1:
                 sys.stderr.write("Ambiguous site %s setting it to unknown.\n" % (item,))
                 annotatedSeq[item.pos-1] = AnnotationItem(item.pos, item.base, [codes['unknown']])
