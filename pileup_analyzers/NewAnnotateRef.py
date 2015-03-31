@@ -212,7 +212,7 @@ def annotateGene(gene, seq):
     for i, exon in enumerate(gene.regions):
         if exon != gene.regions[-1]:
             #if this isn't the last exon, grab the next intron
-            for j in range(exon[1], gene.regions[i+1][0]):
+            for j in range(exon[1]+1, gene.regions[i+1][0]):
                 annot.append((j, codes["intron"]))
         #grabs the position of each item and the base adds it to the cds
         cds += [(i+exon[0], base) for i, base in enumerate(seq[exon[0]-1:exon[1]])]
