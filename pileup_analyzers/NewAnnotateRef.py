@@ -325,18 +325,21 @@ def processGeneOld(item, cds, introns):
 
 #returns the opposite strand of a sequence
 def sense(bases):
-  for i, b in enumerate(bases):
-    if b == "A":
-      bases[i] = "T"
-    elif b == "T":
-      bases[i] = "A"
-    elif b == "G":
-      bases[i] = "C"
-    elif b == "C":
-      bases[i] = "G"
-    elif b == "N":
-      bases[i] = "N"
-  return bases
+    bases = list(bases)
+    for i, b in enumerate(bases):
+        if b == "A":
+          bases[i] = "T"
+        elif b == "T":
+          bases[i] = "A"
+        elif b == "G":
+          bases[i] = "C"
+        elif b == "C":
+          bases[i] = "G"
+        elif b == "N":
+          bases[i] = "N"
+
+    bases = "".join(bases)
+    return bases
 
 codon_table = '''
 #These are DNA codons
