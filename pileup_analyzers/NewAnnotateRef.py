@@ -19,6 +19,7 @@ def main():
         
         annotation[item.type][item.scaf].append(item)
     
+    sys.stderr.write("Finished reading in the GFF.\n")
     #this does not matter with my new way of doing things
     #keeping it for my records though
     
@@ -43,6 +44,7 @@ def main():
         if line.startswith(">"):
             #deal with the old scaffold first
             if scaf and seq:
+                sys.stderr.write("Processing annotations on %s.\n" % (scaf))
                 processSeq(scaf, seq, annotation)
             #deal with the new scaffold
             #assumes the header is of the form:
@@ -134,9 +136,9 @@ def processSeq(scaf, seq, annotation):
         #add the codes for sites in each region
         for item in my_regions:
             if type == "three_prime_UTR":
-                applyTypes(annotatedSeq, [(x, codes['3utr']) for x in range(item.regions[0], item.regions[1]+1)], item.gene, item.dir)
+                applyTypes(annotatedSeq, [(x, codes['3utr']) for x in range(item.regions[0][0], item.regions[0][1]+1)], item.gene, item.dir)
             elif type == "five_prime_UTR":
-                applyTypes(annotatedSeq, [(x, codes['5utr']) for x in range(item.regions[0], item.regions[1]+1)], item.gene, item.dir)
+                applyTypes(annotatedSeq, [(x, codes['5utr']) for x in range(item.regions[0][0], item.regions[0][1]+1)], item.gene, item.dir)
             elif type == "CDS":
                 my_new_annotation = annotateGene(item, seq)
                 applyTypes(annotatedSeq, my_new_annotation, item.gene, item.dir)
