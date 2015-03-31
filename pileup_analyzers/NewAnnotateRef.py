@@ -136,12 +136,12 @@ def processSeq(scaf, seq, annotation):
         #add the codes for sites in each region
         for item in my_regions:
             if type == "three_prime_UTR":
-                applyTypes(annotatedSeq, [(x, codes['3utr']) for x in range(item.regions[0][0], item.regions[0][1]+1)], item.gene, item.dir)
+                applyTypes(annotatedSeq, [(x, codes['3utr']) for x in range(item.regions[0][0], item.regions[0][1]+1)], item.name, item.dir)
             elif type == "five_prime_UTR":
-                applyTypes(annotatedSeq, [(x, codes['5utr']) for x in range(item.regions[0][0], item.regions[0][1]+1)], item.gene, item.dir)
+                applyTypes(annotatedSeq, [(x, codes['5utr']) for x in range(item.regions[0][0], item.regions[0][1]+1)], item.name, item.dir)
             elif type == "CDS":
                 my_new_annotation = annotateGene(item, seq)
-                applyTypes(annotatedSeq, my_new_annotation, item.gene, item.dir)
+                applyTypes(annotatedSeq, my_new_annotation, item.name, item.dir)
             else:
                 sys.stderr.write("Unknown type %s.\n" % type)
     
