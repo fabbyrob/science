@@ -19,17 +19,20 @@ def main():
         
         annotation[item.type][item.scaf].append(item)
     
+    #this does not matter with my new way of doing things
+    #keeping it for my records though
+    
     #sort them on each scaffold so they appear in the right order
     #since GFFs aren't sorted for some reason
-    for k in annotation.keys():
-        for s in annotation[k].keys():
-            annotation[k][s] = sorted(annotation[k][s])
+    #for k in annotation.keys():
+    #    for s in annotation[k].keys():
+    #        annotation[k][s] = sorted(annotation[k][s])
       
-    sys.stderr.write("Checking overlaps. If you have any you may want to completely remove these regions downstream.\n")
+    #sys.stderr.write("Checking overlaps. If you have any you may want to completely remove these regions downstream.\n")
     #check for overlaps, print errors for problem regions, and eliminate one of them
-    for k in annotation.keys():#for each type
-        for s in annotation[k].keys():#for each scaf
-            removeOverlaps(annotation[k][s])
+    #for k in annotation.keys():#for each type
+    #    for s in annotation[k].keys():#for each scaf
+    #        removeOverlaps(annotation[k][s])
                 
     #read in the reference
     #pop off the next item in the GFF as we go
@@ -52,7 +55,8 @@ def main():
     if scaf and seq: processSeq(scaf, seq, annotation)
 
 '''removes overlapping sequences...
-                                                                                                                                                                                                                                                                       '''
+no longer used
+'''
 def removeOverlaps(ls):
     i = 0
     while i < len(ls)-1:
@@ -66,7 +70,10 @@ def removeOverlaps(ls):
             continue
         i += 1                 
         
-def processSeq(scaf, seq, annotation):  
+'''
+No longer used
+'''
+def processSeqOld(scaf, seq, annotation):  
     #this assumes there is at least one region of each type on each scaffold
     items = {}
     for k in annotation.keys():
@@ -114,24 +121,131 @@ def processSeq(scaf, seq, annotation):
             processBase(scaf, pos, base, my_types)
             
     if gene:
-        sys.stderr.write("Warning: There was a gene right at the end of a scaffold, you should make sure none of it was truncated. (%s%s)\n" % (items["CDS"], ""))
+        sys.stderr.write("Warning: There was a gene right at the end of a scaffold, you should make sure none of it was truncated. (%s)\n" % (items["CDS"],))
         processGene(items["CDS"], gene, introns)
+  
+def processSeq(scaf, seq, annotation):
+    #this will be a list of the form [(pos, base, [type_1,...type_n])]
+    AnnotationItem = namedtuple("AnnotationItem", "pos base gene dir types")
+    annotatedSeq = [AnnotationItem(i+1, b, [], [], []) for i, b in enumerate(seq)]
+    #read through each type of annotation
+    for type in annotation.keys():
+        my_regions = annotation[type][scaf]
+        #add the codes for sites in each region
+        for item in my_regions:
+            if type == "three_prime_UTR":
+                applyTypes(annotatedSeq, [(x, codes['3utr']) for x in range(item.regions[0], item.regions[1]+1)], item.gene, item.dir)
+            elif type == "five_prime_UTR":
+                applyTypes(annotatedSeq, [(x, codes['5utr']) for x in range(item.regions[0], item.regions[1]+1)], item.gene, item.dir)
+            elif type == "CDS":
+                my_new_annotation = annotateGene(item, seq)
+                applyTypes(annotatedSeq, my_new_annotation, item.gene, item.dir)
+            else:
+                sys.stderr.write("Unknown type %s.\n" % type)
+    
+    #annotatated everything not yet annotated as intergenic
+    for item in annotatedSeq:
+        #check if sites need to be set ambiguous
+        if args.overlaps-unknown:
+            if isCoding(item) and len(item.types) > 1:
+                sys.stderr.write("Ambiguous site %s setting it to unknown.\n" % (item,))
+                annotatedSeq[item.pos-1] = AnnotationItem(item.pos, item.base, [codes['unknown']])
+                
+        if not item.types:
+            item.types.append(codes['intergenic'])
+            item.dir.append("0")
+            item.gene.append("N")
+    
+    #then output all the codes together
+    outputAnnotation(scaf, annotatedSeq)
             
 def parseArgs():
   parser = argparse.ArgumentParser(description="This takes a gff annotion and a reference genome in fasta format and lines them up annotating every site in the genome.")
   parser.add_argument("reference", type=str, help="the reference genome in fasta format")
   parser.add_argument("annotation", type=str, help="the gff annotation; this file MUST be sorted by position, or many regions will be skipped.")
+  parser.add_argument("-o", "--overlaps-unknown", action="store_true", help="turning on this option will set any sites that overlap in the CDS genes as 'unknown'. If a site is called as CDS and anything else (even CDS again) it will be set to unknown.")
   return parser.parse_args()
 
 args = parseArgs()
 sys.stderr.write("%s\n" % args)
 
+'''
+Takes the "annotation list" and adds types to appropriate sites
+'''
+def applyTypes(annotation, new_annotation, gene, dir):
+    for pos, code in new_annotation:
+        annotation[pos-1].types.append(code)
+        
+        #add the gene and direction too, if needed
+        if gene not in annotation[pos-1].gene:
+            annotation[pos-1].gene.append(gene)
+        if dir not in annotation[pos-1].dir:
+            annotation[pos-1].dir.append(dir)
+
+'''
+Takes an AnnotationItem and returns true if the site type includes any coding types.
+'''
+def isCoding(item):
+    for t in [codes['exon'], codes['0fold'], codes['4fold']]:
+        if t in item.types:
+            return True
+    return False
+
+'''
+Takes a annotation and print out each site correctly formatted.
+'''
+def outputAnnotation(scaf, annotation):
+    for item in annotation:
+        print("%s %s %s %s %s %s" % (scaf, item.pos, item.base, ",".join(item.gene), ",".join(item.dir), ",".join(map(str, item.types))))
+    
+
+'''
+Takes a gene and a sequence, pulls out the gene's exons and introns. Produces codes for each site.
+Note that this does not return sites in order.
+'''
+def annotateGene(gene, seq):
+    cds = []#cds will be (pos, base)
+    annot = []#will be (pos, code)
+    for i, exon in enumerate(gene.regions):
+        if exon != gene.regions[-1]:
+            #if this isn't the last exon, grab the next intron
+            for j in range(exon[1], gene.regions[i+1][0]):
+                annot.append((j, codes["intron"]))
+        #grabs the position of each item and the base adds it to the cds
+        cds += [(i+exon[0], base) for i, base in enumerate(seq[exon[0]-1:exon[1]])]
+    
+    if gene.dir == "-":
+        cds.reverse()
+        
+    for i in range(0, len(cds), 3):
+        #check if we are a multiple of 3
+        if i+2 >= len(cds):
+            sys.stderr.write("Gene sequence not a multiple of codons. Check your annotation for %s. Setting last sites to 'unknown'%s\n" % (gene, ""))
+            for j in range(i, len(cds)):
+                annot.append((cds[j][0], codes["unknown"]))
+            continue
+        
+        #grabs the codons bases
+        positions = [cds[i][0],cds[i+1][0],cds[i+2][0]]
+        codon = cds[i][1]+cds[i+1][1]+cds[i+2][1]
+        
+        if gene.dir == "-":
+            codon = sense(codon)
+            
+        my_codes = degeneracy(codon)
+        annot += [(pos, code) for pos, code in zip(positions, my_codes)]
+        
+    return annot
+
 '''takes an item, a position, a type dictionary, and a list of sorted regions
 checks if the current position overlaps within the next item in the given type
 updates the next item and regions as appropriate
+
+No longer used
 '''
 def checkType(item, pos, type, gene=None, introns=None):
-    if not type:
+
+    if not type or not item:
         return False, item
     
     while item and item.regions[0][1] < pos:
@@ -158,11 +272,17 @@ def checkType(item, pos, type, gene=None, introns=None):
     return False, item
 
 #outputs the given base
+'''
+No longer used
+'''
 def processBase(scaf, pos, base, code, gene = "N", dir = "0"):
     print("%s %s %s %s %s %s" % (scaf, pos, base, gene, dir, ",".join(map(str, code))))
 
 #processes a gene and outputs all bases in it
-def processGene(item, cds, introns):
+'''
+No longer used
+'''
+def processGeneOld(item, cds, introns):
     if len(cds) % 3 != 0:
         sys.stderr.write("Gene length not a multiple of codons (%s len= %s) annotation error?\n" % (item, len(cds)))
         
