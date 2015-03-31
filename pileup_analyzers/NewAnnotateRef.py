@@ -133,7 +133,11 @@ def processSeq(scaf, seq, annotation):
     #read through each type of annotation
     for type in annotation.keys():
         sys.stderr.write("Processing %s regions on %s.\n" % (type, scaf))
-        my_regions = annotation[type][scaf]
+        try:
+            my_regions = annotation[type][scaf]
+        except KeyError, e:
+            sys.stderr.write("No regions of type %s on %s.\n" % (type, scaf))
+            continue
         #add the codes for sites in each region
         for item in my_regions:
             if type == "three_prime_UTR":
