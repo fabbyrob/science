@@ -44,6 +44,7 @@ def main():
         if line.startswith(">"):
             #deal with the old scaffold first
             if scaf and seq:
+                seq = seq.upper()
                 sys.stderr.write("Processing annotations on %s.\n" % (scaf))
                 processSeq(scaf, seq, annotation)
             #deal with the new scaffold
@@ -169,7 +170,7 @@ def processSeq(scaf, seq, annotation):
 def parseArgs():
   parser = argparse.ArgumentParser(description="This takes a gff annotion and a reference genome in fasta format and lines them up annotating every site in the genome.")
   parser.add_argument("reference", type=str, help="the reference genome in fasta format")
-  parser.add_argument("annotation", type=str, help="the gff annotation; this file MUST be sorted by position, or many regions will be skipped.")
+  parser.add_argument("annotation", type=str, help="the gff annotation")
   parser.add_argument("-o", "--overlaps-unknown", action="store_true", help="turning on this option will set any sites that overlap in the CDS genes as 'unknown'. If a site is called as CDS and anything else (even CDS again) it will be set to unknown.")
   return parser.parse_args()
 
