@@ -52,7 +52,7 @@ def main():
     if scaf and seq: processSeq(scaf, seq, annotation)
 
 '''removes overlapping sequences...
-'''
+                                                                                                                                                                                                                                                                       '''
 def removeOverlaps(ls):
     i = 0
     while i < len(ls)-1:
@@ -69,24 +69,21 @@ def removeOverlaps(ls):
 def processSeq(scaf, seq, annotation):  
     #this assumes there is at least one region of each type on each scaffold
     items = {}
-    regions = {}
     for k in annotation.keys():
         if scaf not in annotation[k].keys() or not annotation[k][scaf]:
             sys.stderr.write("Warning: no annotated sites of type %s on scaf %s.\n" % (k, scaf))
             items[k] = None
-            regions[k] = []
             continue
         items[k] = annotation[k][scaf].pop(0)
-        regions[k] = sorted(items[k].regions)
     
     gene = []#for holding the cds bases and positions, in order
     introns = []#same for introns
     
     for i, base in enumerate(seq):
         pos = i+1
-        utr3, items["three_prime_UTR"], regions["three_prime_UTR"] = checkType(items["three_prime_UTR"], pos, annotation["three_prime_UTR"], regions["three_prime_UTR"])
-        utr5, items["five_prime_UTR"], regions["five_prime_UTR"] = checkType(items["five_prime_UTR"], pos, annotation["five_prime_UTR"], regions["five_prime_UTR"])
-        cds, newCDS, regions["CDS"] = checkType(items["CDS"], pos, annotation["CDS"], regions["CDS"], gene, introns)
+        utr3, items["three_prime_UTR"] = checkType(items["three_prime_UTR"], pos, annotation["three_prime_UTR"])
+        utr5, items["five_prime_UTR"] = checkType(items["five_prime_UTR"], pos, annotation["five_prime_UTR"])
+        cds, newCDS = checkType(items["CDS"], pos, annotation["CDS"], gene, introns)
         
         my_types = []
         if utr3:
@@ -133,36 +130,32 @@ sys.stderr.write("%s\n" % args)
 checks if the current position overlaps within the next item in the given type
 updates the next item and regions as appropriate
 '''
-def checkType(item, pos, type, regions, gene=None, introns=None):
-    if not type or not regions:
-        return False, item, regions
+def checkType(item, pos, type, gene=None, introns=None):
+    if not type:
+        return False, item
     
-    while item and regions[0][1] < pos:
+    while item and item.regions[0][1] < pos:
         sys.stderr.write("We missed the beginning of an item. Are you sure that your annotation has no overlapping items?\
-         \nSkipping GFFitem %s at pos = %s region = %s.\n" % (item, pos, regions[0]))
+         \nSkipping GFFitem %s at pos = %s region = %s.\n" % (item, pos, item.regions[0]))
         if type[item.scaf]:
             item = type[item.scaf].pop(0)
-            regions = sorted(item.regions)
         else:
             item = None
-            regions = []
-            return False, item, regions
+            return False, item
     
-    if pos < regions[0][0]:
-        return False, item, regions
+    if pos < item.regions[0][0]:
+        return False, item
     
-    if pos >= regions[0][0] and pos <= regions[0][1]:
-        if pos == regions[0][1]:
-            regions.pop(0)
-            if not regions:
+    if pos >= item.regions[0][0] and pos <= item.regions[0][1]:
+        if pos == item.regions[0][1]:
+            item.regions.pop(0)
+            if not item.regions:
                 if type[item.scaf]:
                     item = type[item.scaf].pop(0)
-                    regions = sorted(item.regions)
                 else:
                     item = None
-                    regions = []
-        return True, item, regions
-    return False, item, regions
+        return True, item
+    return False, item
 
 #outputs the given base
 def processBase(scaf, pos, base, code, gene = "N", dir = "0"):
@@ -378,7 +371,8 @@ class GFFparser:
       
       #if we've reached a new item we should yield teh old one first
       if currentItem and name != currentItem.name:
-        yield currentItem
+        #this is to make sure the exons are sorted correctly
+        yield GFFitem(sorted(currentItem.regions), currentItem.type, currentItem.scaf, currentItem.name, currentItem.dir)#currentItem
         currentItem = None
         
       if not currentItem and type == "CDS":
