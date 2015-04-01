@@ -1,38 +1,22 @@
 import vcf
 import sys
 import argparse
-
-#this is really important, so that the parsing works correctly
-if "--" in sys.argv:
-    sys.argv.remove("--")
     
 #process the input arguments I want to use for my filter
-#note that these arguments should NOT be named the same as arguments
-#for vcfSummaraizer.py
-#however you can also use any of those arguments, so you don't need to 
-#add a new option for min depth, for example (its -d)
-#these first few are required options, they are the defaults from vcfSummarizer.py
-#add yours after the break
 #you can see how argpars works here: https://docs.python.org/2/howto/argparse.html
 parser = argparse.ArgumentParser(description="This is my filter for VCFs it filters based on ...") #fill in the ...
-parser.add_argument("myVCF", type = str, help = "the input VCF to process")
-parser.add_argument("myAnnotation", type = str, help = "the Annotation file to use to assign site types")
-parser.add_argument("-f", "--filter", type = str, help = "the name of the script containing the filter() function")
-parser.add_argument("-d", "--min-depth", type = int, default = 20, help = "the minimum depth")
-parser.add_argument("-D", "--max-depth", type = int, default = 60, help = "the maximum depth")
-parser.add_argument("-L", "--qual", type = int, default = 40, help = "the minimum GQ")
-parser.add_argument("-i", "--dels", type = int, default = 0.0, help = "the maximum Dels")
-parser.add_argument("-G", "--genotypes", action="store_true", help = "this flag turns on outputting of individual genotypes")
 parser.add_argument("-v", "--verbose", action="store_true", help = "this flag turns on verbose mode, so more info is printed to stderr")
-parser.add_argument("-a", "--genes", action="store_true", help = "this flag turns on outputting of gene names from the annotation")
-parser.add_argument("-t", "--divergence", type= str, default = "", help = "this option takes a pickled divergence file, and will add divergence info to the output summary")
-parser.add_argument("-n", "--haploid", action="store_true", help = "this flag turns on haploid mode, a haploid VCF is expected and haploid filters should be used")
 ############ add your own arguments here ############
 #before you use these on the command line you need to add in an extra -- to separate the vcfSummarizer.py options from your filter's options
 parser.add_argument("-m", "--mapqual", type = int, default = 15, help = "The minimum map quality to call a site")#this is an example, feel free to delete it
 
 #####################################################
-args = parser.parse_args()
+#this only grabs the arguments after the -- for the filter
+if "--" in sys.argv:
+    i = sys.argv.index("--")+1
+else:
+    i = 0
+args = parser.parse_args(sys.argv[i:])
 sys.stderr.write("Arguments for filter: %s\n" % args)#this is just so you always have a record of what you ran
 
 #set up the filter function
