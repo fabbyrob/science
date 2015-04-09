@@ -10,7 +10,7 @@ for line in infile:
     
     scaf = sline[0]
     pos = sline[1]
-    cat = sline[-1]
+    cat = sline[-1].split(",")
     
-    if cat == type:
+    if type in cat:
         print(scaf+"\t"+pos)
