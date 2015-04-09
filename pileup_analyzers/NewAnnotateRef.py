@@ -55,7 +55,9 @@ def main():
         else:
             seq += line.rstrip()
     #get the last one
-    if scaf and seq: processSeq(scaf, seq, annotation)
+    if scaf and seq: 
+        seq = seq.upper()
+        processSeq(scaf, seq, annotation)
 
 '''removes overlapping sequences...
 no longer used
