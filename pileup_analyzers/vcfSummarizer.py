@@ -84,7 +84,12 @@ def __main__():
             break
         
         #apply the filter to the record
-        ref, alt, total, genos = _f(record)
+        try:
+            ref, alt, total, genos = _f(record)
+        except Exception as e:  
+            sys.stderr.write("Error at site %s %s. (Did you test your filter?) Skipping site.\n" % (record.CHROM, record.POS))
+            sys.stderr.write("%s\n" % (e))
+            continue
         
         if _t and record.POS < len(divergence.get(record.CHROM)):
             div = divergence[record.CHROM][record.POS]
