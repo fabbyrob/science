@@ -42,6 +42,11 @@ def filter(record):
     total = 0
     genos = []
     
+    #you can raise custom (or default) exceptions at any time to stop this site from being output
+    #NO data from sites with exceptions will be output not even Ns
+    if record.POS == 192:
+        raise BadSiteException("I don't like site %s. Skipping it." % (record.POS))
+    
     if record.INFO["MQ"] < args.mapqual:
         if args.verbose:
             sys.stderr.write("Site at %s %s has low MQ.\n" % (record.CHROM, record.POS))
@@ -65,6 +70,10 @@ def filter(record):
             total += 2
             
     return (ref_num, alt_num, total, genos)
+
+#A custom exception for whatever you're doing
+class BadSiteException(Exception):
+    pass
 
 #this following if statement will never be true if you are using vcfSummariser.py and giving it this script
 #it will only be true if you directly run *this* script on the command line
