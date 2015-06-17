@@ -19,6 +19,8 @@ else:
 args = parser.parse_args(sys.argv[i:])
 sys.stderr.write("Arguments for filter: %s\n" % args)#this is just so you always have a record of what you ran
 
+filter_site_counts = {"total":0, "MQ":0, "No-GT":0}
+
 #set up the filter function
 #this function always takes exactly 1 argument a vcf.Record object, containing all the info from one VCF line
 #this function MUST return exactly 4 arguments
@@ -42,18 +44,22 @@ def filter(record):
     total = 0
     genos = []
     
+    filter_site_counts["total"] += 1
+
     #you can raise custom (or default) exceptions at any time to stop this site from being output
     #NO data from sites with exceptions will be output not even Ns
     if record.POS == 192:
         raise BadSiteException("I don't like site %s. Skipping it." % (record.POS))
     
     if record.INFO["MQ"] < args.mapqual:
+        filter_site_counts["MQ"] += 1
         if args.verbose:
             sys.stderr.write("Site at %s %s has low MQ.\n" % (record.CHROM, record.POS))
         return (0, 0, 0, ["N"]*len(record.samples))
     
     for sample in record.samples:
         if sample["GT"] == "./.":
+            filter_site_counts["No-GT"] += 1
             genos.append("N")
         elif sample["GT"] == "0/0":
             genos.append("R")
