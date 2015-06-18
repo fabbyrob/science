@@ -76,6 +76,7 @@ def __main__():
     print(header)
     
     #read the infile file...
+    pscaf = None
     scaf, pos, type, gene, dir = getNextSite(sites_file)#first annotated site
     for record in reader:
         if scaf == None:
@@ -83,6 +84,15 @@ def __main__():
                 sys.stderr.write("Ran out of sites.\n")
             break
         
+        if pscaf != scaf:
+            #if the filter has counted sites to filter this will print it
+            try:
+                sys.stderr.write("FILTER COUNTS %s: "%pscaf+str(userFilter.filter_site_counts)+"\n")
+            except:
+                sys.stderr.write("No filter counts present.\n")
+                pass
+            pscaf = scaf
+
         #apply the filter to the record
         try:
             ref, alt, total, genos = _f(record)
@@ -151,7 +161,14 @@ def __main__():
         if record.POS == pos:#at a good site, print the data
             printSummary(record, ref, alt, total, type, div, genos, gene, dir)
             scaf, pos, type, gene, dir = getNextSite(sites_file)
-            
+           
+    #if the filter has counted sites to filter this will print it
+    try:
+        sys.stderr.write("FILTER COUNTS: "+str(userFilter.filter_site_counts)+"\n")
+    except:
+        sys.stderr.write("No filter counts present.\n")
+        pass
+ 
     if _v:
         sys.stderr.write("Ran out of VCF.\n")
         
@@ -346,13 +363,15 @@ def processArgs(num):
             path = "/".join(arg[:-1])
             sys.path.append(path)
             
+            global userFilter 
             userFilter = __import__(arg[-1])
             _f = userFilter.filter
         else:
             print ("Unrecognized option: "+opt+"\n")
             usage()
-        sys.stderr.write(" ".join([s+" = %s;" for s in "qdDLitafGvn"]) % (_q, _d, _D, _L, _i, _t, _a, _f, _G, _v, _n))
-   
+        sys.stderr.write(" ".join([s+" = %s;" for s in "qdDLitafGvn"]) % (_q, _d, _D, _L, _i, _t, _a, _f, _G, _v, _n) + "\n")
+        sys.stderr.write(" ".join(sys.argv)+"\n")   
+
 use = "python "+__file__.split("/")[-1]+" VCF ANNOTATION [OPTIONS]"
 def usage():
     print (use)
