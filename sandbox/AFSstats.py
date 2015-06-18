@@ -64,13 +64,12 @@ def stats(afs, N):
     Ns = sum(afs)
     S = sum(afs[1:])
     theta = S/params["a1"]
-    pi = 1
+    pi = 0 
     
     for i, numSites in enumerate(afs[1:]):
         i = float(i+1)
         j = 2*(i/N)*((N-i)/N)*numSites
         pi += j
-    
     pi = pi * N/(N-1.0)
     D = (pi-theta)/(((params["e1"]*S)+(params["e2"]*S*(S-1)))**0.5)
     
