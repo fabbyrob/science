@@ -13,64 +13,60 @@ from math import ceil
 from random import choice
 import summary
 
-_w = 10000#size of regions to bootstrap
-_b = 200#number of bootstraps to perform
-_N = 26#sample size
-_wanted = ['4', '3', '1', '0', '10']#site types to output AFS for
-
 def __main__():
     #check aruguments
-    if len(sys.argv) == 1:
-        details()
-        sys.exit()
+    processArgs()
     
-    if len(sys.argv) < 2:
-        usage()
-
-    processArgs(2)
-    
-    summaryReader = summary.Reader(open(sys.argv[1],"rb"))
+    summaryReader = summary.Reader(open(_args.summary,"rb"))
     
     #dictionary of site codes
     #types = {'0fold': 3, 'stop': 8, 'intergene': 0, '5utr': 6, '3utr': 5, 'exon': 2, 'intron': 1, 'istop': 7, '4fold': 4, 'unknown': 9, 'cnc':10}
     #reverse_types = {v:k for k, v in types.items()}
         
     #Read in the file and build the regions of each size. Calculate the local AFS for each region.
-    if _N % 2 == 0:
-        folded_size = int(_N/2+1)
+    if _args.sample_size % 2 == 0:
+        folded_size = int(_args.sample_size/2+1)
     else:
-        folded_size = int(ceil(float(_N)/2))
+        folded_size = int(ceil(float(_args.sample_size)/2))
         
     regions = {}
     i = -1
     currscaf = None
     afs = resetAFS({}, summaryReader.summary.typeToCode, folded_size)
     div = resetAFS({}, summaryReader.summary.typeToCode, 2)#just makes a dictionary for each type with a list of length 2, store num sites and num div sites
+    added = 0
     for site in summaryReader:#"#CHROM\tPOS\tREF\tALT\tREF_NUMBER\tALT_NUMBER\tTOTAL\tSITE_TYPE")
         if currscaf == None:
             currscaf = site.CHROM
         
-        if i == -1:#start the window at the first site we have
-            i = site.POS
+        #if i == -1:#start the window at the first site we have
+        #    i = site.POS
         
-        if site.POS >= i+_w or currscaf != site.CHROM:
-            regions[currscaf+"_"+str(i)] = (afs, div)
+        if added >= _args.window or currscaf != site.CHROM:
+        #if site.POS >= i+_args.window or currscaf != site.CHROM:
+            regions[currscaf+"_"+str(site.POS)] = (afs, div)
             afs = resetAFS({}, summaryReader.summary.typeToCode, folded_size)
             div = resetAFS({}, summaryReader.summary.typeToCode, 2)
-            i += _w
+         #   i += _args.window
+            added = 0
             if currscaf != site.CHROM:
-                i = site.POS
                 currscaf = site.CHROM
         
-        if site.TOTAL != _N or site.TOTAL != site.REF_NUM+site.ALT_NUM:#not enough alleles at this locus, or total is wrong (filtered data)
+        if site.TOTAL != _args.sample_size or site.TOTAL != site.REF_NUM+site.ALT_NUM:#not enough alleles at this locus, or total is wrong (filtered data)
             sys.stderr.write("Skipping site, either not enough alleles or the total number of alleles does not match the sum of alleles.\n\t%s\n"%site)
             continue
         
         af = min(site.REF_NUM, site.ALT_NUM)
-        
+       
+        #if in SNP mode only add to the window size if we are not at a fixed site
+        if af != 0 and af != 1:
+            added += 1
+        elif not _args.snps:
+            added += 1
+ 
         for t in site.Types:
             if t not in afs.keys():
-                sys.stderr.write("Weird site type encountered: \n\t"+line+"\n")
+                sys.stderr.write("Weird site type encountered: \n\t"+str(site)+"\n")
                 continue
                 
             afs[t][af] += 1
@@ -82,17 +78,17 @@ def __main__():
             if site.DIVERGENCE == 1:
                 div[t][1] += 1
     
-    regions[currscaf+"_"+str(i)] = (afs, div)#store the last region
+    #this is commented out because the last region is usually not long enough to be useful
+    #regions[currscaf+"_"+str(i)] = (afs, div)#store the last region
     
     #make sure all wanted types are actually present
-    global _wanted
     safe = []
-    for w in _wanted:
+    for w in _args.site_types:
         if w in summaryReader.summary.Types.keys():
             safe.append(w)
         else:
             sys.stderr.write("Wanted type not present in codes: %s. Excluding it from analysis.\n" % w)
-    _wanted = safe
+    _args.site_types = safe
     
     counts = resetAFS({}, summaryReader.summary.typeToCode, 1)
     for r in regions.values():
@@ -111,7 +107,7 @@ def __main__():
     output_bootstrap(summaryReader.summary.typeToCode, summaryReader.summary.Types, folded_size, region_names, regions, "real")
 
     #perform the bootstraps
-    for i in range(_b):
+    for i in range(_args.bootstraps):
         boot_regions = []
         while len(boot_regions) < num_regions:
            boot_regions.append(choice(region_names))
@@ -127,22 +123,22 @@ def output_bootstrap(types, reverse_types, folded_size, region_names, regions, n
     total_div = resetAFS({}, types, 2)
     for region in region_names:
         new_region = regions[region]
-        for type in _wanted:
+        for type in _args.site_types:
             total_afs[type] = [sum(values) for values in zip(*[new_region[0][type], total_afs[type]])]
             total_div[type] = [sum(values) for values in zip(*[new_region[1][type], total_div[type]])]
     
     #calculate the info for the neutral sites
-    #assumes the first site type in _wanted is the neutral category
-    neut = _wanted[0]
+    #assumes the first site type in _args.site_types is the neutral category
+    neut = _args.site_types[0]
     neut_div = str(total_div[neut][0])+"\t"+str(total_div[neut][1])
     afs = total_afs[neut]
     myStr = ""
     for x in afs:
         myStr += str(x)+"\t"
-    neut_afs = myStr+"0\t"*int(_N/2)
+    neut_afs = myStr+"0\t"*int(_args.sample_size/2)
     
     #print out info for each type
-    for type in _wanted[1:]:
+    for type in _args.site_types[1:]:
         #calculate the selected info
         afs = total_afs[type]
         div = total_div[type]
@@ -150,13 +146,13 @@ def output_bootstrap(types, reverse_types, folded_size, region_names, regions, n
         sel_afs = ""
         for x in afs:
             sel_afs += str(x)+"\t"
-        sel_afs += "0\t"*int(_N/2)
+        sel_afs += "0\t"*int(_args.sample_size/2)
             
         #print the data
         print("%s_%s" % (reverse_types[type], name))
         print(sel_div)
         print(neut_div)
-        print(str(_N))
+        print(str(_args.sample_size))
         print(sel_afs)
         print(neut_afs)  
         print("")  
@@ -166,46 +162,19 @@ def resetAFS(dict, types, size):
         dict[types[key]] = [0]*size
     return dict        
 
-def processArgs(num):
-    try: 
-        opts, args = getopt.getopt(sys.argv[num:],"w:b:N:s:")
-    except getopt.GetoptError:
-        usage()
-    
-    for opt, arg in opts:
-        if opt == "-w":
-            global _w 
-            _w = int(arg)
-        elif opt == "-b":
-            global _b 
-            _b = int(arg)
-        elif opt == "-N":
-            global _N 
-            _N = int(arg)
-        elif opt == "-s":
-            global _wanted 
-            _wanted = arg.split(",")
-        else:
-            print ("Unrecognized option: "+opt+"\n")
-            usage()
-            
-    sys.stderr.write("infile: %s -w %s -b %s -N %s -s %s\n" % (sys.argv[1], _w, _b, _N, _wanted))
-   
-use = "python "+__file__.split("/")[-1]+" vcfSummary [OPTIONS]"
-def usage():
-    print (use)
-    sys.exit()
-    
-def details():
-    print (use)
-    print("This program takes in a vcf summary file with site types, and bootstraps region s of a given size to build AFS for each type of site.")
-    print()
-    print("option - argument type - default - description")
-    print("w - INT - "+str(_w)+" - the size of the regions to be bootstrapped in bases")
-    print("b - INT - "+str(_b)+" - the number of bootstraps to perform")
-    print("N - INT - "+str(_N)+" - the sample size a site must have to be included in analysis")
-    print("s - STR (comma separated INTs) - "+str(",".join(map(str, _wanted)))+" - the site categories that should be output after bootstrapping - ASSUMES THE FIRST IS YOUR NEUTRAL CATEGORY")
-
+import argparse
+_args = None
+def processArgs():
+    parser = argparse.ArgumentParser(description="takes a summary file and bootstraps the AFS by either bp or snp windows. Outputs DFE formmatted files.")
+    parser.add_argument("summary", help="the summary file to read data from")
+    parser.add_argument("sample_size", type = int, help="the sample size, in number of alleles. Sites without this size are excluded from the AFS.")
+    parser.add_argument("-w", "--window", default = 10000, type = int, help="the window size")
+    parser.add_argument("-b", "--bootstraps", default= 200, type = int, help="the number of bootstraps to perform.")
+    parser.add_argument("-s", "--site-types", type=str, help="a comma separated list of the site types you want to get AFS for. The first one should be your NEUTRAL sites.")
+    parser.add_argument("-p", "--snps", action="store_true", help="If this option is turned on then windows are defined by number of SNPs not bp.")
+    global _args
+    _args = parser.parse_args()
+    sys.stderr.write(str(_args)+"\n")
     
 if __name__ == "__main__":   
     __main__()
