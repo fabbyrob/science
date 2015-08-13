@@ -1,19 +1,25 @@
 ---
 title: "testing stuff"
 author: "emily!"
-date: "August 13, 2015"
+date: "August 13 2015"
 output:
-  pdf_document: default
   html_document:
     highlight: pygments
+  pdf_document: default
   word_document: default
 ---
+##Compiled at:
+```{r, echo=FALSE}
+timestamp()
+```
 
 TO COMPILE THIS ON THE COMMAND LINE DO THIS:
 
-```{r, engine="bash", eval=FALSE}
-Rscript -e "library(knitr); knit('knitr_test.RMD')"
+```{r, engine="bash", eval=FALSE, tidy=TRUE} 
+Rscript -e "library(knitr); knit('knitr_test.Rmd'); pandoc('knitr_test.md', format='latex')"
 ```
+
+You need to [install pandoc](http://pandoc.org/installing.html) as well as the knitr library.
 
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
