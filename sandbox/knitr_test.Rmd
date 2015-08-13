@@ -36,6 +36,7 @@ Lists
 
 
 This is a tree!
+
 ```{r first_chunk, echo=FALSE}
 library(ape)
 data = read.table("/Users/williarj/Desktop/temp/n.6_19.15.hapFilterRatio.dist", header=F)
@@ -50,7 +51,8 @@ plot(tr, "u")
 ```
 
 This is some negative selection, yo.
-```{r negative_selection, echo=FALSE}
+
+```{r negative_selection, echo=FALSE, fig.width=6, fig.height=6}
 type = "allFrac"
 base = "/Users/williarj/Desktop/temp/"
 data = read.table(paste(base,type,".cis", sep=""),header=T)
@@ -75,6 +77,7 @@ axis(1, at=seq(data$alpha), labels=data$type)
 ```
 
 This code would plot some positive selection too.
+
 ```{r positive_selection, eval=FALSE, tidy=TRUE}
 par(mfrow=c(1,1), mar=c(5,5,0,3))
 bp = barplot(as.matrix(data[,c(9,12,15,18)]), beside = T, names.arg = c("<1", "1-10", "10-100", "100+"),xlab = expression(paste(italic('N'['e']), italic('s'), " category")), ylab = "Fraction of sites", col=colors, ylim=c(0,1.1), space = c(0.2, 1.4), axes=F)
@@ -89,6 +92,7 @@ axis(2, at=seq(0,1,0.2), labels=seq(0,1,0.2), cex.axis = 1.25)
 ```
 
 Using Python
+
 --
 ```{r, engine="python", eval=TRUE}
 x = [1,2,3,4]
