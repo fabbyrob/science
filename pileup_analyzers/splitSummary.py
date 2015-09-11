@@ -11,6 +11,7 @@ def __main__():
     
     reader = summary.Reader(open(_args.summary))
     samples = []
+    #sys.stderr.write("%s\n"%reader.Samples)
     for line in open(_args.samples):
         line = line.rstrip()
         if line not in reader.Samples:
@@ -30,7 +31,7 @@ def __main__():
     #generate the headers
     header = reader.Header
     sheader = header.split("\n")
-    new_header = "\n".join(sheader[0:-1])
+    new_header = "\n".join(sheader[0:-1])+"\n"
     file_one.write(new_header)
     file_two.write(new_header)
     fields = sheader[-1].split()
