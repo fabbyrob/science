@@ -491,14 +491,18 @@ class GFFparser:
     for line in self.file:
       if line.startswith("#") or not line:
         continue
-      
-      sline = line.split()
-      scaf = sline[0]
-      type = sline[2]
-      start = int(sline[3])
-      end = int(sline[4])
-      dir = sline[6]
-      #this is a really gross way of pulling out only the gene number
+     
+      try: 
+        sline = line.split()
+        scaf = sline[0]
+        type = sline[2]
+        start = int(sline[3])
+        end = int(sline[4])
+        dir = sline[6]
+      except ValueError:
+        sys.stderr.write("Line conversion failed. Skipping %s.\n" % line)
+        continue  
+    #this is a really gross way of pulling out only the gene number
       #this likely wont work for other genome out of the box
       name = sline[-1].split(";")[0].replace("ID=","").split(".")[0]
       
