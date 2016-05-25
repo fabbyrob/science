@@ -499,7 +499,7 @@ class GFFparser:
         start = int(sline[3])
         end = int(sline[4])
         dir = sline[6]
-      except ValueError:
+      except (ValueError, IndexError):
         sys.stderr.write("Line conversion failed. Skipping %s.\n" % line)
         continue  
     #this is a really gross way of pulling out only the gene number

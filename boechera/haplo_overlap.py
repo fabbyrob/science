@@ -34,7 +34,18 @@ def __main__():
     sys.stderr.write("Sorting haplotypes 2 (Run time: %.2f)...\n" % ((time.time()-start_time)/60)) 
     for k in file2Blocks.keys():
         file2Blocks[k].sort()
-       
+
+    #read in the annotation, if it is there
+    mySites = None
+    if len(sys.argv) == 7:
+        mySites = defaultdict(dict)
+        annot = open(sys.argv[6])
+        for line in annot:
+            if line.startswith("{"):
+                continue
+            sline = line.split()
+            mySites[sline[0]][sline[1]] = sline[-1]
+
     sys.stderr.write("Processing VCFs (Run time: %.2f)...\n" % ((time.time()-start_time)/60)) 
     ctr = 0
     #add in all the homozygous data
@@ -76,7 +87,8 @@ def __main__():
         
     #find overlaps
     sys.stderr.write("Finding overlaps (Run time: %.2f)...\n" % ((time.time()-start_time)/60)) 
-    print("START\tEND\tDiff1\tDiff2")
+    print("CHROM\tSTART\tEND\tDiff1\tDiff2\tDiff3\tDiff4\tDiff5\tDiff6")
+    #diffs are calculated on line 107
     for chrom in file1Blocks.keys():
         if not file2Blocks.has_key(chrom) or not file2Blocks[chrom]:
             continue
@@ -91,22 +103,48 @@ def __main__():
                 if b2.start > b1.end:
                     break
                 
-                over = overlap(b1, b2)
-                if over:
-                    print("%s\t%s\t%s\t%s" % over)
+                over = overlap(b1, b2, mySites)
+                if over and not mySites:
+                    print("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % over)
   
 #finds the overlap between 2 blocks and the # diffs between haplotypes
 #returns the overlap and diffs or None if no overlap  
-def overlap(B1, B2):
+def overlap(B1, B2, myAnnot):
     start = max(B1.start, B2.start)
     end = min(B1.end, B2.end)
+    scaf = B1.chrom
     b1Hap1, b1Hap2 = B1.getOverlap(start, end)
     b2Hap1, b2Hap2 = B2.getOverlap(start, end)
     
+    if myAnnot:
+        perTypeDiff(b1Hap1, b1Hap2, scaf, start, end, sys.argv[4]+"1", sys.argv[4]+"2", myAnnot)
+        perTypeDiff(b1Hap1, b2Hap1, scaf, start, end, sys.argv[4]+"1", sys.argv[5]+"1", myAnnot)
+        perTypeDiff(b1Hap1, b2Hap2, scaf, start, end, sys.argv[4]+"1", sys.argv[5]+"2", myAnnot)
+        perTypeDiff(b1Hap2, b2Hap1, scaf, start, end, sys.argv[4]+"2", sys.argv[5]+"1", myAnnot)
+        perTypeDiff(b1Hap2, b2Hap2, scaf, start, end, sys.argv[4]+"2", sys.argv[5]+"2", myAnnot)
+        perTypeDiff(b2Hap1, b2Hap2, scaf, start, end, sys.argv[5]+"1", sys.argv[5]+"2", myAnnot)
+        return
+
     diff1 = B1.difference(b1Hap1, b2Hap1)
     diff2 = B1.difference(b1Hap1, b2Hap2)
+    diff3 = B1.difference(b1Hap1, b1Hap2)
+    diff4 = B1.difference(b1Hap2, b2Hap1)
+    diff5 = B1.difference(b1Hap2, b2Hap2)
+    diff6 = B1.difference(b2Hap1, b2Hap2)
     
-    return (start, end, diff1, diff2) if end - start > 0 else None
+    return (B1.chrom, start, end, diff1, diff2, diff3, diff4, diff5, diff6) if end - start > 0 else None
+
+def perTypeDiff(b1, b2, scaf,  start, end, n1, n2, myAnnot):
+    diffs = defaultdict(int)
+    i = start
+    for x, y in zip(b1, b2):
+        d = 1 if x == y else 0 
+        for t in myAnnot[scaf][i]:
+            diffs[t] += d
+        i += 1
+
+    for t in diffs.keys():
+        print("%s %s %s %s %s %s %s" % (scaf, start, end, n1, n2, t, diffs[t]))
 
 def insertSite(site, block, samp):
     if site.POS >= block.start and site.POS <= block.end:
