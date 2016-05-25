@@ -50,7 +50,7 @@ Alleles = namedtuple("Alleles", ["REF","ALT"])
 class Reader:
     def __init__(self, hapcut):
         self.hapcut = hapcut
-        
+    
     def __iter__(self):
         myBlock = None
         pLine = ""

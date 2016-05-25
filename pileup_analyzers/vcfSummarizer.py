@@ -64,6 +64,11 @@ def __main__():
     #print("#site types: "+str(types))
     for k,v in types.items():
         print("#TYPE %s %s" % (k, v))
+
+    if _n:
+        print("#PLOIDY 1")
+    else:
+        print("#PLOIDY 2")
         
     if _G:
         print("#GENOTYPE;homozygote reference;R\n#GENOTYPE;homozygote alternate;A\n#GENOTYPE;heterozygote;H\n#GENOTYPE;unknown;N")
@@ -400,6 +405,6 @@ or if the entire site does not pass the quality or indel filters all individuals
     print("v - None - "+str(_v)+" - this flag indicated that verbose mode should be used, the reason for excluding each site and individual will be printed to stderr")
     print("a - None - "+str(_a)+" - if this argument is used then the gene names from the given annotation are added to the summary")
     print("t - Str - "+str(_t)+" - this option takes a pickled file name where divergence info is located, if used divergence info is added to the summary.")
-    print("n - None -" + str(_n)+" - if this option is used then a haploid VCF is expected, haploid genotypes are output.")
+    print("n - int -" + str(_n)+" - if this option is used then a haploid VCF is expected, haploid genotypes are output.")
 if __name__ == "__main__":   
     __main__()

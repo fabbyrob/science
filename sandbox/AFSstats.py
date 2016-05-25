@@ -66,6 +66,9 @@ def stats(afs, N):
     theta = S/params["a1"]
     pi = 0 
     
+    if S == 0:
+        return 0, 0, 0   
+ 
     for i, numSites in enumerate(afs[1:]):
         i = float(i+1)
         j = 2*(i/N)*((N-i)/N)*numSites

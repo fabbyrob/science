@@ -12,6 +12,7 @@ A parser for summary files. Makes a reader that returns one line at a time.
     Summary.Samples [STR]
     Summary.TypeNames [STR]
     Summary.TypeCodes [STR]
+    Summary.Ploidy [INT]
     
     Site.CHROM    STR
     Site.POS    INT
@@ -41,6 +42,7 @@ class Summary(object):
         self.Genotypes = {}
         self.Samples = {}
         self.hadGenes = False
+        self.Ploidy = 2
         
     def parse(self, line):
         sline = line.split()
@@ -90,6 +92,8 @@ class Summary(object):
             else:
                 self.hadGenes = True
                 self.Samples = sline[11:]#two more fields when gene name is present
+        elif line.startswith("#PLOIDY"):
+            self.Ploidy = int(sline[1])
         else:
             sys.stderr.write("Non-standard comment line in summary.\n\t%s\n" % line)
             
@@ -106,6 +110,7 @@ class Summary(object):
             myStr += "#TYPE\t%s\t%s\n" % (type, code)
         for code, type in self.Genotypes.items():
             myStr += "#GENOTYPE;%s;%s\n" % (type, code)
+        myStr += "#PLOIDY %s\n" % (self.Ploidy)
         myStr = myStr[0:-1]
         myStr += "\n#"+"\t".join(self.Fields)
         return myStr
