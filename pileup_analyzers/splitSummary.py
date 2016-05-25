@@ -31,8 +31,8 @@ def __main__():
     header = reader.Header
     sheader = header.split("\n")
     new_header = "\n".join(sheader[0:-1])
-    file_one.write(new_header)
-    file_two.write(new_header)
+    file_one.write(new_header+"\n")
+    file_two.write(new_header+"\n")
     fields = sheader[-1].split()
     fields = "\t".join(fields[0:len(fields)-len(reader.Samples)])
     file_one.write(fields+"\t"+"\t".join(samples)+"\n")
@@ -57,9 +57,13 @@ def __main__():
                 allele_counts[0] += 1
                 allele_counts[1] += 1
             elif record.summary.Genotypes[newgenos[-1]] == "homozygote reference":
-                allele_counts[0] += 2
+                allele_counts[0] += 1
+                if not _args.haploid:
+                    allele_counts[0] += 1
             elif record.summary.Genotypes[newgenos[-1]] == "homozygote alternate":
-                allele_counts[1] += 2
+                allele_counts[1] += 1
+                if not _args.haploid:
+                    allele_counts[1] += 1
 
             if not filtered:
                 allele_counts[2] = allele_counts[0]+allele_counts[1]
@@ -80,10 +84,13 @@ def __main__():
                 allele_counts[0] += 1
                 allele_counts[1] += 1
             elif record.summary.Genotypes[newgenos[-1]] == "homozygote reference":
-                allele_counts[0] += 2
+                allele_counts[0] += 1
+                if not _args.haploid:
+                    allele_counts[0] += 1
             elif record.summary.Genotypes[newgenos[-1]] == "homozygote alternate":
-                allele_counts[1] += 2
-
+                allele_counts[1] += 1
+                if not _args.haploid:
+                    allele_counts[1] += 1
             if not filtered:
                 allele_counts[2] = allele_counts[0]+allele_counts[1]
        
@@ -101,6 +108,7 @@ def processArgs():
     parser.add_argument("samples", help="test file listing samples to split out, one sample name per line")
     parser.add_argument("-o","--file_one", help="the file name where the new summary, with samples from the input, is saved", type=str, default="samples.summary")
     parser.add_argument("-t","--file_two", help="the file where the the new summary with the remaining samples is saved", type=str, default="other_samples.summary")
+    parser.add_argument("-n", "--haploid", help="turns on haploid calling", action='store_true')
     global _args
     _args = parser.parse_args()
 
